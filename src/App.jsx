@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Users, Target, Award, ChevronRight, Menu, X, Mail, Phone, MapPin, TrendingUp, Database, FileText, CheckCircle } from 'lucide-react';
+import { BarChart3, Users, Target, Award, ChevronRight, Menu, X, Mail, Phone, MapPin, TrendingUp, Database, FileText, CheckCircle, NotebookPen } from 'lucide-react';
 import Papa from 'papaparse';
 import ContactSection from './contact.jsx'
 
@@ -67,7 +67,14 @@ const MedistatLanding = () => {
       title: "Data Analytics Support",
       description: "Comprehensive data analytics solutions for research teams and academic institutions.",
       features: ["Data Visualization", "Predictive Modeling", "Machine Learning", "Custom Dashboards"]
-    }
+    },
+    {
+      icon: <NotebookPen className="w-8 h-8" />,
+      title: "Professional Academic Services",
+      description: "Empowering learners with personalized solutions for academic success.",
+      features: ["Timely. Trusted.  Turnitin-Safe", "Essay & Report Writing. ", "Structured. Personalized. Plagiarism-Free", "Assignment Help"]
+    },
+
   ];
 
   
@@ -105,7 +112,7 @@ const MedistatLanding = () => {
             <div className="flex items-center space-x-2">
               <div className="p-1 rounded-lg">
                 <img
-                  src="/images/logo.jpg"
+                  src="/public/images/logo.jpg"
                   alt="Medistat Logo"
                   className="w-10 h-10 object-contain"
                 />
@@ -294,12 +301,14 @@ const MedistatLanding = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service, index) => (
               <div
                 key={index}
-                className="group bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 hover:border-blue-200 transition-all duration-300 hover:-translate-y-2"
-              >
+                className={`
+                        group p-6 bg-white rounded-xl shadow-md transition-transform duration-300 
+                        ${services.length === 4 && index === 3 ? 'lg:col-start-2' : ''}
+                      `}              >
                 {/* Service Image/Illustration */}
                 <div className="mb-6 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center relative overflow-hidden">
                   {index === 0 && (
@@ -353,6 +362,43 @@ const MedistatLanding = () => {
                         </div>
                         <div className="absolute -top-2 -right-2">
                           <Database className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {index === 3 && (
+                    <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                      {/* Writing/Notebook Illustration */}
+                      <div className="relative">
+                        <div className="bg-white/20 w-14 h-18 rounded-lg border-2 border-white/40 relative">
+                          {/* Spiral binding effect */}
+                          <div className="absolute -left-1 top-2 bottom-2 w-1 bg-white/30 rounded-full"></div>
+                          <div className="absolute -left-0.5 top-3 w-0.5 h-0.5 bg-white/60 rounded-full"></div>
+                          <div className="absolute -left-0.5 top-5 w-0.5 h-0.5 bg-white/60 rounded-full"></div>
+                          <div className="absolute -left-0.5 top-7 w-0.5 h-0.5 bg-white/60 rounded-full"></div>
+                          <div className="absolute -left-0.5 top-9 w-0.5 h-0.5 bg-white/60 rounded-full"></div>
+                          <div className="absolute -left-0.5 top-11 w-0.5 h-0.5 bg-white/60 rounded-full"></div>
+                          <div className="absolute -left-0.5 top-13 w-0.5 h-0.5 bg-white/60 rounded-full"></div>
+                          
+                          {/* Writing lines */}
+                          <div className="p-2 mt-2 space-y-1.5">
+                            <div className="h-0.5 bg-white/60 rounded w-full"></div>
+                            <div className="h-0.5 bg-white/40 rounded w-4/5"></div>
+                            <div className="h-0.5 bg-white/60 rounded w-full"></div>
+                            <div className="h-0.5 bg-white/40 rounded w-3/5"></div>
+                            <div className="h-0.5 bg-white/60 rounded w-full"></div>
+                            <div className="h-0.5 bg-white/40 rounded w-2/3"></div>
+                          </div>
+                        </div>
+                        
+                        {/* Pen illustration */}
+                        <div className="absolute -bottom-2 -right-2 rotate-45">
+                          <div className="w-6 h-1 bg-white/80 rounded-full"></div>
+                          <div className="w-2 h-1 bg-white/60 rounded-full ml-4 -mt-0.5"></div>
+                        </div>
+                        
+                        <div className="absolute -top-1 -right-1">
+                          <NotebookPen className="w-5 h-5 text-white" />
                         </div>
                       </div>
                     </div>
@@ -512,7 +558,7 @@ const MedistatLanding = () => {
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow">
                   <img
-                    src="/images/logo.jpg"
+                    src="/public/images/logo.jpg"
                     alt="Medistat Logo"
                     className="w-10 h-10 object-contain rounded-full"
                   />
