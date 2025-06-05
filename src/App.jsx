@@ -112,7 +112,7 @@ const MedistatLanding = () => {
             <div className="flex items-center space-x-2">
               <div className="p-1 rounded-lg">
                 <img
-                  src="/public/images/logo.jpg"
+                  src="/images/logo.jpg"
                   alt="Medistat Logo"
                   className="w-10 h-10 object-contain"
                 />
@@ -558,7 +558,7 @@ const MedistatLanding = () => {
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow">
                   <img
-                    src="/public/images/logo.jpg"
+                    src="/images/logo.jpg"
                     alt="Medistat Logo"
                     className="w-10 h-10 object-contain rounded-full"
                   />
