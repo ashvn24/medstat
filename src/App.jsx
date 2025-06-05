@@ -10,7 +10,7 @@ const MedistatLanding = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['home', 'services', 'work', 'contact'];
+      const sections = ['home', 'services', 'work', 'testimonials', 'contact'];
       const scrollPosition = window.scrollY + 100;
 
       sections.forEach(section => {
@@ -103,6 +103,9 @@ const MedistatLanding = () => {
     }
   ];
 
+  console.log(activeSection);
+  
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
@@ -152,7 +155,7 @@ const MedistatLanding = () => {
           {/* Mobile Menu */}
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t border-gray-200">
-              {['home', 'services', 'work', 'contact'].map((item) => (
+              {['home', 'services', 'work', 'testimonials', 'contact'].map((item) => (
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}

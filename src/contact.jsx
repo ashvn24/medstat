@@ -104,6 +104,7 @@ const ContactSection = () => {
                   <option>Statistical Analysis</option>
                   <option>Thesis Assistance</option>
                   <option>Data Analytics Support</option>
+                  <option>Professional Academic Services</option>
                 </select>
                 <textarea
                   name="message"
