@@ -7,6 +7,7 @@ const MedistatLanding = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [testimonials, setTestimonials] = useState([]);
+  const duplicatedTestimonials = [...testimonials, ...testimonials, ...testimonials];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -534,20 +535,58 @@ const MedistatLanding = () => {
         </div>
       </section>
 
-    <section id="testimonials" className="py-20 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-10">What Our Clients Say</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {testimonials.map((t, idx) => (
-              <div key={idx} className="bg-white p-6 rounded-xl shadow-md">
-                <p className="text-lg text-gray-700 mb-4">“{t.Feedback}”</p>
-                <div className="font-semibold text-blue-700">{t.Name}</div>
-                <div className="text-sm text-gray-500">{t.occupation}</div>
+      {/* testimonial */}
+
+   <section id="testimonials" className="py-20  bg-gray-50 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4">
+        <h2 className="text-4xl font-bold text-center mb-10">What Our Clients Say</h2>
+        
+        <div className="relative overflow-hidden">
+          {/* Gradient overlays for smooth fade effect */}
+          <div className="absolute left-0 top-0 w-8 sm:w-16 md:w-24 h-full bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 w-8 sm:w-16 md:w-24 h-full bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none"></div>
+          
+          {/* Scrolling container */}
+          <div className="flex animate-scroll w-max pl-2 sm:pl-4 md:pl-8 mb-6">
+            {duplicatedTestimonials.map((testimonial, idx) => (
+              <div
+                key={idx}
+                className="relative flex-shrink-0 w-72 sm:w-80 mx-2 sm:mx-4 bg-white p-4 sm:p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+              >
+                <p className="text-base sm:text-lg text-gray-700  leading-relaxed pb-5">
+                  "{testimonial.Feedback}"
+                </p>
+
+                {/* Name and Occupation fixed at bottom-left */}
+                <div className="absolute bottom-5 left-5">
+                  <div className="font-semibold text-blue-700">{testimonial.Name}</div>
+                </div>
               </div>
             ))}
           </div>
+
         </div>
-      </section>
+      </div>
+
+      <style jsx>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+
+        .animate-scroll {
+          animation: scroll 30s linear infinite;
+        }
+
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+    </section>
 
       {/* Contact Section */}
       <ContactSection/>
