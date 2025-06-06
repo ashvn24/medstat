@@ -539,7 +539,7 @@ const MedistatLanding = () => {
 
    <section id="testimonials" className="py-20  bg-gray-50 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-10">What Our Clients Say</h2>
+        <h2 className="text-4xl font-bold text-center mb-10">What Our <span className="text-pink-600">Clients</span> Say</h2>
         
         <div className="relative overflow-hidden">
           {/* Gradient overlays for smooth fade effect */}
