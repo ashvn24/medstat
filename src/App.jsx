@@ -182,7 +182,7 @@ const MedistatLanding = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             <div className="space-y-8">
               <div className="space-y-4">
-                <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mt-4 sm:mt-0">
                   <Award className="w-4 h-4 mr-2" />
                   Trusted by 500+ Researchers
                 </div>
@@ -216,7 +216,7 @@ const MedistatLanding = () => {
 
               <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-200">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">500+</div>
+                  <div className="text-3xl font-bold text-blue-600">100+</div>
                   <div className="text-sm text-gray-600">Projects Completed</div>
                 </div>
                 <div className="text-center">
@@ -605,7 +605,7 @@ const MedistatLanding = () => {
                     className="w-10 h-10 object-contain rounded-full"
                   />
                 </div>
-                <span className="text-2xl font-bold">Medistat</span>
+                <span className="text-2xl font-bold">Medistat Solutions</span>
               </div>
               <p className="text-gray-400 mb-4 max-w-md">
                 Empowering researchers and students with world-class statistical analysis, 
