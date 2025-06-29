@@ -1052,8 +1052,14 @@ const Stats = () => {
         <div className="header-content">
           <div className="header-left">
             <div className="logo">
-              <div className="logo-icon">M</div>
-              <span>Medistat</span>
+            <div className="p-1 rounded-lg">
+                <img
+                  src="/images/logo.jpg"
+                  alt="Medistat Logo"
+                  className="w-10 h-10 object-contain"
+                />
+              </div>
+              <span>MediStat Solutions</span>
             </div>
             <div className="header-title">Payment Analytics Dashboard</div>
           </div>

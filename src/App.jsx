@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BarChart3, Users, Target, Award, ChevronRight, Menu, X, Mail, Phone, MapPin, TrendingUp, Database, FileText, CheckCircle, NotebookPen } from 'lucide-react';
 import Papa from 'papaparse';
 import ContactSection from './contact.jsx'
-import Payment from './payment.jsx'
 
 const MedistatLanding = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
