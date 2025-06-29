@@ -146,7 +146,7 @@ const MedistatLanding = () => {
                 href="/plan"
                 className="capitalize text-sm font-medium transition-all duration-300 hover:text-blue-600 relative text-gray-700"
               >
-                Payment
+                see plans
               </a>
             </div>
 
