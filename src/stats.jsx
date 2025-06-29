@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { Helmet } from 'react-helmet';
 import { BarChart3, Users, Target, Award, ChevronRight, Menu, X, Mail, Phone, MapPin, TrendingUp, Database, FileText, CheckCircle, NotebookPen, ArrowLeft, Star, Shield, Clock, Zap, Calendar, DollarSign, Package, Filter, Download } from 'lucide-react';
+import emailjs from 'emailjs-com';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQi0DvVHmhGJ4Xo_2PX30u5YcGLsZIWFRHyOwE-uAkD-lc6qXk44l0OjCXEgPd-WL3y7st1AFCTGteC/pub?output=csv'
 
@@ -128,6 +131,9 @@ const Stats = () => {
     growthRate: 0,
     conversionRate: 0
   });
+  const [invoiceStatus, setInvoiceStatus] = useState({});
+  const [pdfInvoice, setPdfInvoice] = useState({ show: false, payment: null });
+  const [pdfUploadStatus, setPdfUploadStatus] = useState({}); // { [index]: { status, link, error } }
 
   // Fetch payment data from published Google Sheet CSV
   const fetchPaymentData = async () => {
@@ -172,65 +178,6 @@ const Stats = () => {
     setLoading(false);
   };
 
-  // Helper function to use mock data
-  const useMockData = () => {
-    const mockData = [
-      {
-        timestamp: '2024-01-15T10:30:00Z',
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '+91 9876543210',
-        upiId: 'john@okaxis',
-        institution: 'ABC University',
-        amount: '₹15,000',
-        packageName: 'Basic Package',
-        transactionId: 'TXN001',
-        qrGeneratedTime: '2024-01-15T10:25:00Z',
-        completeButtonClickedTime: '2024-01-15T10:28:00Z'
-      },
-      {
-        timestamp: '2024-01-20T14:20:00Z',
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        phone: '+91 9876543211',
-        upiId: 'jane@paytm',
-        institution: 'XYZ College',
-        amount: '₹35,000',
-        packageName: 'Enhanced Package',
-        transactionId: 'TXN002',
-        qrGeneratedTime: '2024-01-20T14:15:00Z',
-        completeButtonClickedTime: '2024-01-20T14:18:00Z'
-      },
-      {
-        timestamp: '2024-02-05T09:15:00Z',
-        name: 'Mike Johnson',
-        email: 'mike@example.com',
-        phone: '+91 9876543212',
-        upiId: 'mike@okhdfcbank',
-        institution: 'DEF Institute',
-        amount: '₹75,000',
-        packageName: 'Professional Package',
-        transactionId: 'TXN003',
-        qrGeneratedTime: '2024-02-05T09:10:00Z',
-        completeButtonClickedTime: '2024-02-05T09:13:00Z'
-      },
-      {
-        timestamp: '2024-02-10T16:45:00Z',
-        name: 'Sarah Wilson',
-        email: 'sarah@example.com',
-        phone: '+91 9876543213',
-        upiId: 'sarah@ybl',
-        institution: 'GHI University',
-        amount: '₹35,000',
-        packageName: 'Enhanced Package',
-        transactionId: 'TXN004',
-        qrGeneratedTime: '2024-02-10T16:40:00Z',
-        completeButtonClickedTime: '2024-02-10T16:43:00Z'
-      }
-    ];
-    setPaymentData(mockData);
-    calculateStats(mockData);
-  };
 
   // Calculate statistics from payment data
   const calculateStats = (data) => {
@@ -409,6 +356,175 @@ const Stats = () => {
     
     // Sort by date (newest first)
     return options.sort((a, b) => new Date(b.value + '-01') - new Date(a.value + '-01'));
+  };
+
+  // Helper to generate invoice HTML
+  const generateInvoiceHTML = (payment) => {
+    const logoUrl = window.location.origin + '/images/logo.jpg';
+    const company = {
+      name: 'Medistat Solutions',
+      address: 'Kochi, Kerala, India',
+      email: 'medistatsolutions@gmail.com',
+      phone: '+91 9744649329',
+      gst: 'GSTIN: 32AAICM1234F1Z5',
+    };
+    // Use the same fallback logic as the table for all fields
+    const timestamp = payment.timestamp || payment.Timestamp || payment.date || payment.Date || payment.time || payment.Time;
+    const name = payment.name || payment.Name || payment.customerName || payment.CustomerName || payment['Customer Name'] || '';
+    const email = payment.email || payment.Email || '';
+    const phone = payment.phone || payment.Phone || payment.phoneNumber || payment.PhoneNumber || payment['Phone Number'] || '';
+    const packageName = payment.packageName || payment.PackageName || payment.package || payment.Package || payment.service || payment.Service || payment['Package Name'] || '';
+    const amount = payment.amount || payment.Amount || payment.price || payment.Price || '';
+    const upiId = payment.upiId || payment.UpiId || payment.upi || payment.UPI || payment.paymentMethod || payment.PaymentMethod || payment['UPI ID'] || '';
+    const institution = payment.institution || payment.Institution || '';
+    const transactionId = payment.transactionId || payment.TransactionId || payment['Transaction ID'] || '';
+    const date = timestamp ? new Date(timestamp).toLocaleDateString() : '';
+    return `
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; padding-top: 70px;">
+        <div style="background: #1e40af; color: white; padding: 24px 32px; display: flex; align-items: center;">
+          <img src="${logoUrl}" alt="Medistat Logo" style="height: 48px; margin-right: 20px; border-radius: 8px;" />
+          <div>
+            <div style="font-size: 1.5rem; font-weight: bold;">${company.name}</div>
+            <div style="font-size: 0.95rem; opacity: 0.85;">${company.address}</div>
+          </div>
+        </div>
+        <div style="padding: 32px; background: #f8fafc;">
+          <h2 style="margin: 0 0 16px 0; color: #1e293b;">Invoice</h2>
+          <table style="width: 100%; margin-bottom: 24px; font-size: 1rem;">
+            <tr><td><b>Invoice Date:</b></td><td>${date}</td></tr>
+            <tr><td><b>Invoice No:</b></td><td>${transactionId}</td></tr>
+          </table>
+          <h3 style="margin: 0 0 8px 0; color: #3b82f6;">Billed To</h3>
+          <table style="width: 100%; margin-bottom: 24px; font-size: 1rem;">
+            <tr><td><b>Name:</b></td><td>${name}</td></tr>
+            <tr><td><b>Email:</b></td><td>${email}</td></tr>
+            <tr><td><b>Phone:</b></td><td>${phone}</td></tr>
+            <tr><td><b>Institution:</b></td><td>${institution}</td></tr>
+          </table>
+          <h3 style="margin: 0 0 8px 0; color: #3b82f6;">Order Summary</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 1rem;">
+            <tr style="background: #e2e8f0;">
+              <th style="padding: 8px; text-align: left;">Package</th>
+              <th style="padding: 8px; text-align: left;">Amount</th>
+              <th style="padding: 8px; text-align: left;">UPI ID</th>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">${packageName}</td>
+              <td style="padding: 8px;">${amount}</td>
+              <td style="padding: 8px;">${upiId}</td>
+            </tr>
+          </table>
+          <div style="margin-top: 32px; color: #64748b; font-size: 0.95rem;">
+            <b>${company.name}</b> | ${company.email} | ${company.phone}<br/>
+            ${company.gst}
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  // Function to send invoice email (generate PDF, send as base64 to backend)
+  const sendInvoice = async (payment, idx) => {
+    console.log("Sending invoice", payment, idx);
+    console.log(payment['Package Name'])    
+    setInvoiceStatus((prev) => ({ ...prev, [idx]: 'sending' }));
+    setPdfInvoice({ show: true, payment });
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const input = document.getElementById('invoice-pdf-preview');
+    if (!input) {
+      setInvoiceStatus((prev) => ({ ...prev, [idx]: 'error' }));
+      setTimeout(() => setInvoiceStatus((prev) => ({ ...prev, [idx]: undefined })), 4000);
+      setPdfInvoice({ show: false, payment: null });
+      return;
+    }
+    try {
+      const canvas = await html2canvas(input, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'pt', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const pdfBlob = pdf.output('blob');
+      // Convert PDF blob to base64
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(pdfBlob);
+      });
+      // Send to backend
+      const response = await fetch('http://localhost:8000/send-invoice-attachment/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to_email: payment.Email,
+          to_name: payment.Name,
+          subject: `Your Medistat Invoice - ${payment['Package Name'] || ''}`,
+          pdf_base64: base64,
+          filename: `Medistat_Invoice_${payment['Transaction ID'] || payment.Name || 'invoice'}.pdf`,
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to send email');
+      setInvoiceStatus((prev) => ({ ...prev, [idx]: 'sent' }));
+      setTimeout(() => setInvoiceStatus((prev) => ({ ...prev, [idx]: undefined })), 4000);
+    } catch (error) {
+      setInvoiceStatus((prev) => ({ ...prev, [idx]: 'error' }));
+      setTimeout(() => setInvoiceStatus((prev) => ({ ...prev, [idx]: undefined })), 4000);
+    }
+    setPdfInvoice({ show: false, payment: null });
+  };
+
+  // Add downloadInvoice function
+  const downloadInvoice = (payment) => {
+    const html = generateInvoiceHTML(payment);
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Medistat_Invoice_${payment.transactionId || payment.name || 'invoice'}.html`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  };
+
+  // Add downloadInvoicePDF function
+  const downloadInvoicePDF = async (payment, index) => {
+    setPdfInvoice({ show: true, payment });
+    setPdfUploadStatus((prev) => ({ ...prev, [index]: { status: 'generating' } }));
+    setTimeout(async () => {
+      const input = document.getElementById('invoice-pdf-preview');
+      if (!input) {
+        setPdfUploadStatus((prev) => ({ ...prev, [index]: { status: 'error', error: 'Invoice preview not found' } }));
+        setPdfInvoice({ show: false, payment: null });
+        return;
+      }
+      const canvas = await html2canvas(input, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'pt', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const pdfBlob = pdf.output('blob');
+      // Upload to backend
+      setPdfUploadStatus((prev) => ({ ...prev, [index]: { status: 'uploading' } }));
+      const formData = new FormData();
+      formData.append('file', pdfBlob, `Medistat_Invoice_${payment.transactionId || payment.name || 'invoice'}.pdf`);
+      try {
+        const response = await fetch('http://localhost:8000/upload-invoice/', {
+          method: 'POST',
+          body: formData,
+        });
+        if (!response.ok) throw new Error('Upload failed');
+        const data = await response.json();
+        setPdfUploadStatus((prev) => ({ ...prev, [index]: { status: 'done', link: data.link } }));
+      } catch (err) {
+        setPdfUploadStatus((prev) => ({ ...prev, [index]: { status: 'error', error: err.message } }));
+      }
+      setPdfInvoice({ show: false, payment: null });
+    }, 200); // Wait for DOM render
   };
 
   useEffect(() => {
@@ -1252,6 +1368,27 @@ const Stats = () => {
                             <td>{upiId}</td>
                             <td>
                               <span className="status-badge completed">Completed</span>
+                              <span style={{ display: 'inline-flex', gap: 4, marginLeft: 8 }}>
+                                <button
+                                  style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem', borderRadius: 4, border: 'none', background: '#f59e0b', color: 'white', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                                  onClick={() => downloadInvoicePDF(payment, index)}
+                                  title="Download Invoice PDF"
+                                  disabled={pdfUploadStatus[index]?.status === 'generating' || pdfUploadStatus[index]?.status === 'uploading'}
+                                >
+                                  <Download size={14} />
+                                </button>
+                                <button
+                                  style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem', borderRadius: 4, border: 'none', background: '#3b82f6', color: 'white', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                                  onClick={() => sendInvoice(payment, index)}
+                                  disabled={invoiceStatus[index] === 'sending'}
+                                  title="Send Invoice"
+                                >
+                                  {invoiceStatus[index] === 'sending' ? 'Sending...' : invoiceStatus[index] === 'sent' ? 'Sent!' : invoiceStatus[index] === 'error' ? 'Error' : (<><span>Send Invoice</span></>)}
+                                </button>
+                                {pdfUploadStatus[index]?.status === 'done' && pdfUploadStatus[index]?.link && (
+                                  <a href={pdfUploadStatus[index].link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: '#10b981', marginLeft: 4, display: 'none' }}>View PDF</a>
+                                )}
+                              </span>
                             </td>
                           </tr>
                         );
@@ -1264,6 +1401,13 @@ const Stats = () => {
           )}
         </div>
       </div>
+
+      {/* Render hidden invoice for PDF generation */}
+      {pdfInvoice.show && (
+        <div style={{ position: 'fixed', left: '-9999px', top: 0, width: 800, zIndex: -1, background: 'white' }}>
+          <div id="invoice-pdf-preview" dangerouslySetInnerHTML={{ __html: generateInvoiceHTML(pdfInvoice.payment) }} />
+        </div>
+      )}
     </>
   );
 };
