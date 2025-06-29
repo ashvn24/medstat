@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BarChart3, Users, Target, Award, ChevronRight, Menu, X, Mail, Phone, MapPin, TrendingUp, Database, FileText, CheckCircle, NotebookPen } from 'lucide-react';
 import Papa from 'papaparse';
 import ContactSection from './contact.jsx'
+import SupportChat from './support-chat.jsx'
+import { Helmet } from 'react-helmet';
 
 const MedistatLanding = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -109,8 +111,59 @@ const MedistatLanding = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Helmet>
+        <title>Medistat Solutions | Statistical Analysis, Thesis Assistance, Data Analytics</title>
+        <meta name="description" content="Empowering researchers and students with expert statistical analysis, thesis assistance, and data analytics solutions. Trusted by 500+ researchers." />
+        <meta property="og:title" content="Medistat Solutions | Statistical Analysis, Thesis Assistance, Data Analytics" />
+        <meta property="og:description" content="Empowering researchers and students with expert statistical analysis, thesis assistance, and data analytics solutions. Trusted by 500+ researchers." />
+        <meta property="og:image" content="/images/logo.jpg" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://medstat-one.vercel.app/" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Medistat Solutions | Statistical Analysis, Thesis Assistance, Data Analytics" />
+        <meta name="twitter:description" content="Empowering researchers and students with expert statistical analysis, thesis assistance, and data analytics solutions. Trusted by 500+ researchers." />
+        <meta name="twitter:image" content="/images/logo.jpg" />
+        <script type="application/ld+json">{`
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Medistat Solutions",
+            "url": "https://medstat-one.vercel.app/",
+            "logo": "https://medstat-one.vercel.app/images/logo.jpg",
+            "contactPoint": [{
+              "@type": "ContactPoint",
+              "email": "medistatsolutions@gmail.com",
+              "telephone": "+91 9744649329",
+              "contactType": "customer support",
+              "areaServed": "IN"
+            }],
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Mangalore",
+              "addressRegion": "Karnataka",
+              "addressCountry": "India"
+            },
+            "sameAs": [
+              "https://www.linkedin.com/company/medistat-solutions/"
+            ],
+            "description": "Empowering researchers and students with expert statistical analysis, thesis assistance, and data analytics solutions."
+          }
+        `}</script>
+        <script type="application/ld+json">{`
+          {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            "serviceType": "Statistical Analysis, Thesis Assistance, Data Analytics Support, Professional Academic Services",
+            "provider": {
+              "@type": "Organization",
+              "name": "Medistat Solutions"
+            }
+          }
+        `}</script>
+      </Helmet>
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-lg z-50 transition-all duration-300">
+      <header>
+      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-lg z-50 transition-all duration-300" aria-label="Main Navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-2">
@@ -193,7 +246,8 @@ const MedistatLanding = () => {
           )}
         </div>
       </nav>
-
+      </header>
+      <main>
       {/* Hero Section */}
       <section id="home" className="pt-20 pb-12 bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
         {/* Background Elements */}
@@ -613,9 +667,10 @@ const MedistatLanding = () => {
     </section>
 
       {/* Contact Section */}
+      <section id="contact">
       <ContactSection/>
-
-      
+      </section>
+      </main>
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -662,6 +717,7 @@ const MedistatLanding = () => {
           </div>
         </div>
       </footer>
+      <SupportChat />
     </div>
   );
 };

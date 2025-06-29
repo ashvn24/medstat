@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://medstat-one.vercel.app/</loc>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/plan</loc>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/stats</loc>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/manage-review</loc>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/#services</loc>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/#work</loc>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/#testimonials</loc>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/#contact</loc>
+  </url>
+</urlset> 
