@@ -152,19 +152,6 @@ const ManageReview = () => {
     }
   };
 
-  const exportToCSV = () => {
-    const csvContent = Papa.unparse(filteredTestimonials);
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `testimonials_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const renderStars = (rating) => {
     const stars = [];
     const numRating = parseInt(rating) || 0;
@@ -216,7 +203,7 @@ const ManageReview = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
             <div className="flex items-center space-x-3">
               <div className="p-2 rounded-lg bg-blue-100">
                 <MessageSquare className="w-6 h-6 text-blue-600" />
@@ -226,17 +213,10 @@ const ManageReview = () => {
                 <p className="text-sm text-gray-600">Manage and moderate customer testimonials</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={exportToCSV}
-                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                <span>Export CSV</span>
-              </button>
+            <div className="flex items-center space-x-3 w-full sm:w-auto">
               <button
                 onClick={fetchTestimonials}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center justify-center w-full sm:w-auto space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 <span>Refresh</span>
