@@ -1,10 +1,17 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import MedistatLanding from './App.jsx'
+import Payment from './payment.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <MedistatLanding />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MedistatLanding />} />
+        <Route path="/plan" element={<Payment />} />
+      </Routes>
+    </BrowserRouter>
   </StrictMode>,
 )

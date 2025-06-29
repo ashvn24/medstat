@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart3, Users, Target, Award, ChevronRight, Menu, X, Mail, Phone, MapPin, TrendingUp, Database, FileText, CheckCircle, NotebookPen } from 'lucide-react';
 import Papa from 'papaparse';
 import ContactSection from './contact.jsx'
+import Payment from './payment.jsx'
 
 const MedistatLanding = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -128,7 +129,7 @@ const MedistatLanding = () => {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex space-x-8">
-              {['home', 'services', 'work', 'testimonials', 'contact'].map((item) => (
+              {['home', 'services', 'work', 'testimonials', 'contact', 'payment'].map((item) => (
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}
