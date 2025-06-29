@@ -129,7 +129,7 @@ const MedistatLanding = () => {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex space-x-8">
-              {['home', 'services', 'work', 'testimonials', 'contact', 'payment'].map((item) => (
+              {['home', 'services', 'work', 'testimonials', 'contact'].map((item) => (
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}
@@ -143,6 +143,18 @@ const MedistatLanding = () => {
                   )}
                 </button>
               ))}
+              <a
+                href="/plan"
+                className="capitalize text-sm font-medium transition-all duration-300 hover:text-blue-600 relative text-gray-700"
+              >
+                Payment
+              </a>
+              <a
+                href="/stats"
+                className="capitalize text-sm font-medium transition-all duration-300 hover:text-blue-600 relative text-gray-700"
+              >
+                Stats
+              </a>
             </div>
 
             {/* Mobile Menu Button */}
@@ -166,6 +178,18 @@ const MedistatLanding = () => {
                   {item === 'work' ? 'Our Work' : item === 'contact' ? 'Contact Us' : item}
                 </button>
               ))}
+              <a
+                href="/plan"
+                className="block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
+              >
+                Payment
+              </a>
+              <a
+                href="/stats"
+                className="block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
+              >
+                Stats
+              </a>
             </div>
           )}
         </div>

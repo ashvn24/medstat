@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import MedistatLanding from './App.jsx'
 import Payment from './payment.jsx'
+import Stats from './stats.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -11,6 +12,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<MedistatLanding />} />
         <Route path="/plan" element={<Payment />} />
+        <Route path="/stats" element={<Stats />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
