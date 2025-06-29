@@ -704,8 +704,12 @@ const MedistatPackages = () => {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
-                <BarChart3 className="w-8 h-8 text-white" />
+            <div className="p-1 rounded-lg">
+                <img
+                  src="/images/logo.jpg"
+                  alt="Medistat Logo"
+                  className="w-10 h-10 object-contain"
+                />
               </div>
               <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Medistat Solutions
