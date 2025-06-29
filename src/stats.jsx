@@ -453,7 +453,7 @@ const Stats = () => {
         reader.readAsDataURL(pdfBlob);
       });
       // Send to backend
-      const response = await fetch('http://localhost:8000/send-invoice-attachment/', {
+      const response = await fetch('https://medstat-backend.onrender.com/send-invoice-attachment/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -507,22 +507,10 @@ const Stats = () => {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      const pdfBlob = pdf.output('blob');
-      // Upload to backend
-      setPdfUploadStatus((prev) => ({ ...prev, [index]: { status: 'uploading' } }));
-      const formData = new FormData();
-      formData.append('file', pdfBlob, `Medistat_Invoice_${payment.transactionId || payment.name || 'invoice'}.pdf`);
-      try {
-        const response = await fetch('http://localhost:8000/upload-invoice/', {
-          method: 'POST',
-          body: formData,
-        });
-        if (!response.ok) throw new Error('Upload failed');
-        const data = await response.json();
-        setPdfUploadStatus((prev) => ({ ...prev, [index]: { status: 'done', link: data.link } }));
-      } catch (err) {
-        setPdfUploadStatus((prev) => ({ ...prev, [index]: { status: 'error', error: err.message } }));
-      }
+      // Download the PDF
+      const filename = `Medistat_Invoice_${payment['Transaction ID'] || payment.Name || 'invoice'}.pdf`;
+      pdf.save(filename);
+      setPdfUploadStatus((prev) => ({ ...prev, [index]: { status: 'done' } }));
       setPdfInvoice({ show: false, payment: null });
     }, 200); // Wait for DOM render
   };
