@@ -19,6 +19,7 @@ import {
 import Papa from 'papaparse';
 
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKvljNIsRRVNNytagXvTOg5EnZXdsB9bkD8fZKXxLIg3ZAl8rnv8kjINub735SAIGsLg/exec'; // <-- Replace with your deployed Apps Script Web App URL
+const BACKEND_URL = 'http://localhost:8000'; // Backend URL for API calls
 
 const ManageReview = () => {
   const [testimonials, setTestimonials] = useState([]);
@@ -32,6 +33,28 @@ const ManageReview = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState({});
   const [actionLoading, setActionLoading] = useState(false);
+  const [showColumnDropdown, setShowColumnDropdown] = useState(false);
+
+  // Define all columns and their keys/labels
+  const ALL_COLUMNS = [
+    { label: "Date", key: "Timestamp" },
+    { label: "Full Name", key: "1. Full Name " },
+    { label: "Educational Qualification", key: " 2. Educational Qualification  " },
+    { label: "Satisfaction", key: "3. How satisfied are you with our statistical analysis services?  " },
+    { label: "Turnaround Time", key: "5. How would you rate our turnaround time?" },
+    { label: "Communication & Support", key: "6. How would you describe our communication and support?  " },
+    { label: "Recommendation", key: "7. Would you recommend Medistat Solutions to others?  " },
+    { label: "Stay Connected", key: "  8. Stay Connected!   👉 Follow us on LinkedIn for updates, insights, and offers: www.linkedin.com/in/medistat-solutions-3a9262356" },
+    { label: "Feedback", key: "  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  " }
+  ];
+
+  const [selectedColumns, setSelectedColumns] = useState([
+    "Timestamp",
+    "1. Full Name ",
+    " 2. Educational Qualification  ",
+    "3. How satisfied are you with our statistical analysis services?  ",
+    "  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  "
+  ]);
 
   // Fetch testimonials from Google Sheets
   useEffect(() => {
@@ -43,20 +66,19 @@ const ManageReview = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSyaO2nrOR8aFowan6wRgzKphxj1OLOh10OqncG_ewbZEPOJR02Q8OS6AzsoQwRoaWQMB9tEn9icY_T/pub?output=csv');
+      const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vStv63buxIdC2PFN8o1OnOoeIffHuJgqhAukujwp1n4m4U9h7Mu7a6W9dTz-1gqoezwRQjGvr1BoBhM/pub?output=csv');
       const text = await response.text();
       
       Papa.parse(text, {
         header: true,
         complete: (results) => {
+          console.log('First row keys:', Object.keys(results.data[0]));
           const validTestimonials = results.data.filter(item => 
-            item.Name && item.Name.trim() !== '' && 
-            item.Feedback && item.Feedback.trim() !== ''
+            item['1. Full Name '] && item['1. Full Name '].trim() !== ''
           );
           setTestimonials(validTestimonials);
           setFilteredTestimonials(validTestimonials);
           setLoading(false);
-          console.log(validTestimonials);
         },
         error: (error) => {
           console.error('CSV parsing error:', error);
@@ -77,9 +99,9 @@ const ManageReview = () => {
       setFilteredTestimonials(testimonials);
     } else {
       const filtered = testimonials.filter(testimonial =>
-        testimonial.Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        testimonial.Feedback?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        testimonial.Rating?.toString().includes(searchTerm)
+        testimonial['1. Full Name ']?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        testimonial[' 9.Any additional feedback? \u21b5 Thank you for your time! Your feedback helps us improve and serve you better. 😊 ']?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        testimonial['3. How satisfied are you with our statistical analysis services? ']?.toString().includes(searchTerm)
       );
       setFilteredTestimonials(filtered);
     }
@@ -105,18 +127,16 @@ const ManageReview = () => {
     try {
       // Find the row number (index + 2)
       const row = testimonials.findIndex(t => t === selectedTestimonial) + 2;
-      const params = new URLSearchParams({
-        action: 'update',
+      await fetch(`${BACKEND_URL}/update-testimonial`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
         row: row,
-        Feedback: editingTestimonial.Feedback,
-        Suggestions: editingTestimonial['Suggestions for improvement'],
-        Name: editingTestimonial.Name,
-        Email: editingTestimonial.Email
-      });
-      // Use GET with URL params and no-cors mode
-      await fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
-        method: 'GET',
-        mode: 'no-cors'
+          Feedback: editingTestimonial[' 9.Any additional feedback? \u21b5 Thank you for your time! Your feedback helps us improve and serve you better. 😊 '],
+          Name: editingTestimonial['1. Full Name '],
+          Rating: editingTestimonial['3. How satisfied are you with our statistical analysis services? '],
+          Timestamp: editingTestimonial['Timestamp']
+        })
       });
       await fetchTestimonials();
       setIsEditModalOpen(false);
@@ -133,14 +153,10 @@ const ManageReview = () => {
     setActionLoading(true);
     try {
       const row = testimonials.findIndex(t => t === selectedTestimonial) + 2;
-      const params = new URLSearchParams({
-        action: 'delete',
-        row: row
-      });
-      // Use GET with URL params and no-cors mode
-      await fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
-        method: 'GET',
-        mode: 'no-cors'
+      await fetch(`${BACKEND_URL}/delete-testimonial`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ row: row })
       });
       await fetchTestimonials();
       setIsDeleteModalOpen(false);
@@ -251,7 +267,7 @@ const ManageReview = () => {
                 <p className="text-sm font-medium text-gray-600">Average Rating</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {testimonials.length > 0 
-                    ? (testimonials.reduce((sum, t) => sum + (parseInt(t.Rating) || 0), 0) / testimonials.length).toFixed(1)
+                    ? (testimonials.reduce((sum, t) => sum + (parseInt(t['3. How satisfied are you with our statistical analysis services? ']) || 0), 0) / testimonials.length).toFixed(1)
                     : '0.0'
                   }
                 </p>
@@ -267,7 +283,7 @@ const ManageReview = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Unique Customers</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {new Set(testimonials.map(t => t.Name)).size}
+                  {new Set(testimonials.map(t => t['1. Full Name '])).size}
                 </p>
               </div>
             </div>
@@ -282,7 +298,7 @@ const ManageReview = () => {
                 <p className="text-sm font-medium text-gray-600">This Month</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {testimonials.filter(t => {
-                    const date = new Date(t.Date || t.Timestamp || '');
+                    const date = new Date(t['Timestamp'] || '');
                     const now = new Date();
                     return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
                   }).length}
@@ -314,79 +330,77 @@ const ManageReview = () => {
           </div>
         </div>
 
+        {/* Add column selector UI before the table */}
+        <div className="relative mb-4">
+          <button
+            className="px-4 py-2 bg-white border border-gray-300 rounded shadow hover:bg-gray-50"
+            onClick={() => setShowColumnDropdown(open => !open)}
+            type="button"
+          >
+            Select Columns
+          </button>
+          {showColumnDropdown && (
+            <div className="absolute z-10 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg p-3 max-h-64 overflow-y-auto">
+              {ALL_COLUMNS.map(col => (
+                <label key={col.key} className="flex items-center space-x-2 py-1">
+                  <input
+                    type="checkbox"
+                    checked={selectedColumns.includes(col.key)}
+                    onChange={() => {
+                      setSelectedColumns(selectedColumns =>
+                        selectedColumns.includes(col.key)
+                          ? selectedColumns.filter(k => k !== col.key)
+                          : [...selectedColumns, col.key]
+                      );
+                    }}
+                  />
+                  <span>{col.label}</span>
+                </label>
+              ))}
+              <button
+                className="mt-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onClick={() => setShowColumnDropdown(false)}
+                type="button"
+              >
+                Done
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Testimonials Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Feedback
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Suggestions
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  {ALL_COLUMNS.filter(col => selectedColumns.includes(col.key)).map(col => (
+                    <th key={col.key} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{col.label}</th>
+                  ))}
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredTestimonials.map((testimonial, index) => (
                   <tr key={index} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <User className="w-5 h-5 text-blue-600" />
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {testimonial.Name || 'Anonymous'}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {testimonial.Email || 'No email'}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate">
-                        {testimonial.Feedback || 'No feedback'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate">
-                        {testimonial['Suggestions for improvement'] || 'No suggestions'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    {ALL_COLUMNS.filter(col => selectedColumns.includes(col.key)).map(col => (
+                      col.label === 'Feedback' ? (
+                        <td key={col.key} className="px-4 py-3 max-w-xs truncate" style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={testimonial[col.key] || ''}>
+                          {testimonial[col.key]}
+                        </td>
+                      ) : col.label === 'Date' ? (
+                        <td key={col.key} className="px-4 py-3">{testimonial[col.key] ? testimonial[col.key].split(' ')[0] : ''}</td>
+                      ) : col.label === 'Satisfaction' ? (
+                        <td key={col.key} className="px-4 py-3"><div className="flex flex-row items-center gap-1">{renderStars(testimonial[col.key])}</div></td>
+                      ) : (
+                        <td key={col.key} className="px-4 py-3">{testimonial[col.key]}</td>
+                      )
+                    ))}
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleView(testimonial)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                          title="View"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleEdit(testimonial)}
-                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
-                          title="Edit"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(testimonial)}
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <button onClick={() => handleView(testimonial)} className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View"><Eye className="w-4 h-4" /></button>
+                        <button onClick={() => handleEdit(testimonial)} className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50" title="Edit"><Edit className="w-4 h-4" /></button>
+                        <button onClick={() => handleDelete(testimonial)} className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50" title="Delete"><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </td>
                   </tr>
@@ -423,38 +437,15 @@ const ManageReview = () => {
               </div>
               
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
-                  <p className="text-gray-900">{selectedTestimonial.Name || 'Anonymous'}</p>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <p className="text-gray-900">{selectedTestimonial.Email || 'No email provided'}</p>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
-                  <div className="flex items-center">
-                    {renderStars(selectedTestimonial.Rating)}
-                    <span className="ml-2 text-gray-900">{selectedTestimonial.Rating || '0'}/5</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Testimonial</label>
-                  <p className="text-gray-900 whitespace-pre-wrap">{selectedTestimonial.Feedback || 'No testimonial text'}</p>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                  <p className="text-gray-900">{selectedTestimonial.Date || selectedTestimonial.Timestamp || 'No date'}</p>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Suggestions for improvement</label>
-                  <p className="text-gray-900 whitespace-pre-wrap">{selectedTestimonial['Suggestions for improvement'] || 'No suggestions'}</p>
-                </div>
+                <div><label>Timestamp</label><p>{selectedTestimonial['Timestamp']}</p></div>
+                <div><label>Full Name</label><p>{selectedTestimonial['1. Full Name ']}</p></div>
+                <div><label>Educational Qualification</label><p>{selectedTestimonial[' 2. Educational Qualification  ']}</p></div>
+                <div><label>Satisfaction</label><p>{selectedTestimonial['3. How satisfied are you with our statistical analysis services?  ']}</p></div>
+                <div><label>Turnaround Time</label><p>{selectedTestimonial['5. How would you rate our turnaround time?']}</p></div>
+                <div><label>Communication & Support</label><p>{selectedTestimonial['6. How would you describe our communication and support?  ']}</p></div>
+                <div><label>Recommendation</label><p>{selectedTestimonial['7. Would you recommend Medistat Solutions to others?  ']}</p></div>
+                <div><label>Stay Connected</label><p>{selectedTestimonial['  8. Stay Connected!   👉 Follow us on LinkedIn for updates, insights, and offers: www.linkedin.com/in/medistat-solutions-3a9262356']}</p></div>
+                <div><label>Feedback</label><p>{selectedTestimonial['  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  ']}</p></div>
               </div>
               
               <div className="flex justify-end space-x-3 mt-6">
@@ -486,61 +477,15 @@ const ManageReview = () => {
               </div>
               
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
-                  <input
-                    type="text"
-                    value={editingTestimonial.Name || ''}
-                    onChange={(e) => setEditingTestimonial({...editingTestimonial, Name: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={editingTestimonial.Email || ''}
-                    onChange={(e) => setEditingTestimonial({...editingTestimonial, Email: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
-                  <select
-                    value={editingTestimonial.Rating || ''}
-                    onChange={(e) => setEditingTestimonial({...editingTestimonial, Rating: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select rating</option>
-                    <option value="1">1 Star</option>
-                    <option value="2">2 Stars</option>
-                    <option value="3">3 Stars</option>
-                    <option value="4">4 Stars</option>
-                    <option value="5">5 Stars</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Testimonial</label>
-                  <textarea
-                    value={editingTestimonial.Feedback || ''}
-                    onChange={(e) => setEditingTestimonial({...editingTestimonial, Feedback: e.target.value})}
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Suggestions for improvement</label>
-                  <textarea
-                    value={editingTestimonial['Suggestions for improvement'] || ''}
-                    onChange={(e) => setEditingTestimonial({...editingTestimonial, ['Suggestions for improvement']: e.target.value})}
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Timestamp</label><input type="text" value={editingTestimonial['Timestamp'] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['Timestamp']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label><input type="text" value={editingTestimonial['1. Full Name '] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['1. Full Name ']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Educational Qualification</label><input type="text" value={editingTestimonial[' 2. Educational Qualification  '] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, [' 2. Educational Qualification  ']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Satisfaction</label><input type="text" value={editingTestimonial['3. How satisfied are you with our statistical analysis services?  '] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['3. How satisfied are you with our statistical analysis services?  ']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Turnaround Time</label><input type="text" value={editingTestimonial['5. How would you rate our turnaround time?'] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['5. How would you rate our turnaround time?']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Communication & Support</label><input type="text" value={editingTestimonial['6. How would you describe our communication and support?  '] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['6. How would you describe our communication and support?  ']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Recommendation</label><input type="text" value={editingTestimonial['7. Would you recommend Medistat Solutions to others?  '] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['7. Would you recommend Medistat Solutions to others?  ']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Stay Connected</label><input type="text" value={editingTestimonial['  8. Stay Connected!   👉 Follow us on LinkedIn for updates, insights, and offers: www.linkedin.com/in/medistat-solutions-3a9262356'] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['  8. Stay Connected!   👉 Follow us on LinkedIn for updates, insights, and offers: www.linkedin.com/in/medistat-solutions-3a9262356']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Feedback</label><textarea value={editingTestimonial['  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  '] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  ']: e.target.value})} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
               </div>
               
               <div className="flex justify-end space-x-3 mt-6">
@@ -579,7 +524,7 @@ const ManageReview = () => {
               </div>
               
               <p className="text-sm text-gray-500 mb-6">
-                Are you sure you want to delete the testimonial from "{selectedTestimonial.Name || 'Anonymous'}"? 
+                Are you sure you want to delete the testimonial from "{selectedTestimonial['1. Full Name '] || 'Anonymous'}"? 
                 This action cannot be undone.
               </p>
               

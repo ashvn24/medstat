@@ -5,6 +5,25 @@ import ContactSection from './contact.jsx'
 import SupportChat from './support-chat.jsx'
 import { Helmet } from 'react-helmet';
 
+const renderStars = (rating) => {
+  const stars = [];
+  const numRating = parseInt(rating) || 0;
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <svg
+        key={i}
+        xmlns="http://www.w3.org/2000/svg"
+        className={`w-4 h-4 ${i <= numRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.386-2.46a1 1 0 00-1.175 0l-3.386 2.46c-.784.57-1.838-.196-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118l-3.385-2.46c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.967z" />
+      </svg>
+    );
+  }
+  return stars;
+};
+
 const MedistatLanding = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -32,7 +51,7 @@ const MedistatLanding = () => {
   }, []);
 
   useEffect(() => {
-    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSyaO2nrOR8aFowan6wRgzKphxj1OLOh10OqncG_ewbZEPOJR02Q8OS6AzsoQwRoaWQMB9tEn9icY_T/pub?output=csv')
+    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vStv63buxIdC2PFN8o1OnOoeIffHuJgqhAukujwp1n4m4U9h7Mu7a6W9dTz-1gqoezwRQjGvr1BoBhM/pub?output=csv')
       .then(res => res.text())
       .then(text => {
         Papa.parse(text, {
@@ -626,21 +645,22 @@ const MedistatLanding = () => {
           
           {/* Scrolling container */}
           <div className="flex animate-scroll w-max pl-2 sm:pl-4 md:pl-8 mb-6">
-            {duplicatedTestimonials.map((testimonial, idx) => (
-              <div
-                key={idx}
-                className="relative flex-shrink-0 w-72 sm:w-80 mx-2 sm:mx-4 bg-white p-4 sm:p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
-              >
-                <p className="text-base sm:text-lg text-gray-700  leading-relaxed pb-5">
-                  "{testimonial.Feedback}"
-                </p>
-
-                {/* Name and Occupation fixed at bottom-left */}
-                <div className="absolute bottom-5 left-5">
-                  <div className="font-semibold text-blue-700">{testimonial.Name}</div>
+            {duplicatedTestimonials
+              .filter(testimonial => testimonial['  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  '] && testimonial['  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  '].trim() !== '')
+              .map((testimonial, idx) => (
+                <div
+                  key={idx}
+                  className="relative flex-shrink-0 w-72 sm:w-80 mx-2 sm:mx-4 bg-white p-4 sm:p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+                >
+                  <p className="text-base sm:text-lg text-gray-700 leading-relaxed pb-5">
+                    "{testimonial['  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  '].trim()}"
+                  </p>
+                  <div className="flex items-center gap-2 absolute bottom-5 left-5">
+                    <span className="font-semibold text-blue-700">{testimonial['1. Full Name '] || 'Anonymous'}</span>
+                    {renderStars(testimonial['3. How satisfied are you with our statistical analysis services?  '])}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
 
         </div>
