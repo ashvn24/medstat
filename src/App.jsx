@@ -249,18 +249,6 @@ const MedistatLanding = () => {
               >
                 Payment
               </a>
-              <a
-                href="/stats"
-                className="block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
-              >
-                Stats
-              </a>
-              <a
-                href="/manage-review"
-                className="block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
-              >
-                Manage Reviews
-              </a>
             </div>
           )}
         </div>

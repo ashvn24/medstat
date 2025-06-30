@@ -19,7 +19,7 @@ import {
 import Papa from 'papaparse';
 
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKvljNIsRRVNNytagXvTOg5EnZXdsB9bkD8fZKXxLIg3ZAl8rnv8kjINub735SAIGsLg/exec'; // <-- Replace with your deployed Apps Script Web App URL
-const BACKEND_URL = 'http://localhost:8000'; // Backend URL for API calls
+const BACKEND_URL = 'https://medstat-backend.onrender.com'; // Backend URL for API calls
 
 const ManageReview = () => {
   const [testimonials, setTestimonials] = useState([]);
@@ -34,6 +34,7 @@ const ManageReview = () => {
   const [editingTestimonial, setEditingTestimonial] = useState({});
   const [actionLoading, setActionLoading] = useState(false);
   const [showColumnDropdown, setShowColumnDropdown] = useState(false);
+  const [selectedTestimonialIndex, setSelectedTestimonialIndex] = useState(null);
 
   // Define all columns and their keys/labels
   const ALL_COLUMNS = [
@@ -79,6 +80,10 @@ const ManageReview = () => {
           setTestimonials(validTestimonials);
           setFilteredTestimonials(validTestimonials);
           setLoading(false);
+          // Debug: log a sample testimonial object
+          if (validTestimonials.length > 0) {
+            console.log('Sample testimonial object:', validTestimonials[0]);
+          }
         },
         error: (error) => {
           console.error('CSV parsing error:', error);
@@ -112,36 +117,45 @@ const ManageReview = () => {
     setIsViewModalOpen(true);
   };
 
-  const handleEdit = (testimonial) => {
+  const handleEdit = (testimonial, index) => {
     setEditingTestimonial({ ...testimonial });
+    setSelectedTestimonial(testimonial);
+    setSelectedTestimonialIndex(index);
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (testimonial) => {
+  const handleDelete = (testimonial, index) => {
     setSelectedTestimonial(testimonial);
+    setSelectedTestimonialIndex(index);
     setIsDeleteModalOpen(true);
   };
 
   const handleSaveEdit = async () => {
     setActionLoading(true);
     try {
-      // Find the row number (index + 2)
-      const row = testimonials.findIndex(t => t === selectedTestimonial) + 2;
+      // Use the tracked index for row calculation
+      console.log('Selected testimonial index:', selectedTestimonialIndex);
+      const row = selectedTestimonialIndex + 2;
+      console.log('Row:', row);
+      console.log('Editing testimonial:', editingTestimonial);
+      const payload = {
+        row: row,
+        Feedback: editingTestimonial['  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  '],
+        Suggestions: editingTestimonial['Suggestions'] || '',
+        Name: editingTestimonial['1. Full Name '],
+        Email: editingTestimonial['Email'] || ''
+      };
+      console.log('Payload being sent to backend:', payload);
       await fetch(`${BACKEND_URL}/update-testimonial`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-        row: row,
-          Feedback: editingTestimonial[' 9.Any additional feedback? \u21b5 Thank you for your time! Your feedback helps us improve and serve you better. 😊 '],
-          Name: editingTestimonial['1. Full Name '],
-          Rating: editingTestimonial['3. How satisfied are you with our statistical analysis services? '],
-          Timestamp: editingTestimonial['Timestamp']
-        })
+        body: JSON.stringify(payload)
       });
       await fetchTestimonials();
       setIsEditModalOpen(false);
       setEditingTestimonial({});
       setSelectedTestimonial(null);
+      setSelectedTestimonialIndex(null);
     } catch (error) {
       alert('Failed to update testimonial');
     } finally {
@@ -152,7 +166,7 @@ const ManageReview = () => {
   const handleConfirmDelete = async () => {
     setActionLoading(true);
     try {
-      const row = testimonials.findIndex(t => t === selectedTestimonial) + 2;
+      const row = selectedTestimonialIndex + 2;
       await fetch(`${BACKEND_URL}/delete-testimonial`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -161,6 +175,7 @@ const ManageReview = () => {
       await fetchTestimonials();
       setIsDeleteModalOpen(false);
       setSelectedTestimonial(null);
+      setSelectedTestimonialIndex(null);
     } catch (error) {
       alert('Failed to delete testimonial');
     } finally {
@@ -381,30 +396,38 @@ const ManageReview = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredTestimonials.map((testimonial, index) => (
-                  <tr key={index} className="hover:bg-gray-50 transition-colors">
-                    {ALL_COLUMNS.filter(col => selectedColumns.includes(col.key)).map(col => (
-                      col.label === 'Feedback' ? (
-                        <td key={col.key} className="px-4 py-3 max-w-xs truncate" style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={testimonial[col.key] || ''}>
-                          {testimonial[col.key]}
-                        </td>
-                      ) : col.label === 'Date' ? (
-                        <td key={col.key} className="px-4 py-3">{testimonial[col.key] ? testimonial[col.key].split(' ')[0] : ''}</td>
-                      ) : col.label === 'Satisfaction' ? (
-                        <td key={col.key} className="px-4 py-3"><div className="flex flex-row items-center gap-1">{renderStars(testimonial[col.key])}</div></td>
-                      ) : (
-                        <td key={col.key} className="px-4 py-3">{testimonial[col.key]}</td>
-                      )
-                    ))}
-                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button onClick={() => handleView(testimonial)} className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View"><Eye className="w-4 h-4" /></button>
-                        <button onClick={() => handleEdit(testimonial)} className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50" title="Edit"><Edit className="w-4 h-4" /></button>
-                        <button onClick={() => handleDelete(testimonial)} className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50" title="Delete"><Trash2 className="w-4 h-4" /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredTestimonials.map((testimonial, index) => {
+                  // Use a unique key (Timestamp + Full Name) to find the index in the full testimonials array, trimming whitespace
+                  const fullIndex = testimonials.findIndex(
+                    t =>
+                      (t['Timestamp'] || '').trim() === (testimonial['Timestamp'] || '').trim() &&
+                      (t['1. Full Name '] || '').trim() === (testimonial['1. Full Name '] || '').trim()
+                  );
+                  return (
+                    <tr key={index} className="hover:bg-gray-50 transition-colors">
+                      {ALL_COLUMNS.filter(col => selectedColumns.includes(col.key)).map(col => (
+                        col.label === 'Feedback' ? (
+                          <td key={col.key} className="px-4 py-3 max-w-xs truncate" style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={testimonial[col.key] || ''}>
+                            {testimonial[col.key]}
+                          </td>
+                        ) : col.label === 'Date' ? (
+                          <td key={col.key} className="px-4 py-3">{testimonial[col.key] ? testimonial[col.key].split(' ')[0] : ''}</td>
+                        ) : col.label === 'Satisfaction' ? (
+                          <td key={col.key} className="px-4 py-3"><div className="flex flex-row items-center gap-1">{renderStars(testimonial[col.key])}</div></td>
+                        ) : (
+                          <td key={col.key} className="px-4 py-3">{testimonial[col.key]}</td>
+                        )
+                      ))}
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <button onClick={() => handleView(testimonial)} className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="View"><Eye className="w-4 h-4" /></button>
+                          <button onClick={() => handleEdit(testimonial, fullIndex)} className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50" title="Edit"><Edit className="w-4 h-4" /></button>
+                          <button onClick={() => handleDelete(testimonial, fullIndex)} className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -486,6 +509,14 @@ const ManageReview = () => {
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Recommendation</label><input type="text" value={editingTestimonial['7. Would you recommend Medistat Solutions to others?  '] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['7. Would you recommend Medistat Solutions to others?  ']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Stay Connected</label><input type="text" value={editingTestimonial['  8. Stay Connected!   👉 Follow us on LinkedIn for updates, insights, and offers: www.linkedin.com/in/medistat-solutions-3a9262356'] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['  8. Stay Connected!   👉 Follow us on LinkedIn for updates, insights, and offers: www.linkedin.com/in/medistat-solutions-3a9262356']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Feedback</label><textarea value={editingTestimonial['  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  '] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['  9.Any additional feedback?   \n Thank you for your time! Your feedback helps us improve and serve you better. 😊  ']: e.target.value})} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                {/* Suggestions field if present */}
+                {'Suggestions' in editingTestimonial && (
+                  <div><label className="block text-sm font-medium text-gray-700 mb-1">Suggestions</label><input type="text" value={editingTestimonial['Suggestions'] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['Suggestions']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                )}
+                {/* Email field if present */}
+                {'Email' in editingTestimonial && (
+                  <div><label className="block text-sm font-medium text-gray-700 mb-1">Email</label><input type="email" value={editingTestimonial['Email'] || ''} onChange={e => setEditingTestimonial({...editingTestimonial, ['Email']: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+                )}
               </div>
               
               <div className="flex justify-end space-x-3 mt-6">
