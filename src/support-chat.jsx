@@ -192,6 +192,15 @@ const SupportChat = () => {
           </div>
           {/* Quick Service Buttons */}
           <div className="px-4 pb-2 flex flex-wrap gap-2">
+            <button
+              className="bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 text-xs px-3 py-1 rounded-full hover:from-yellow-200 hover:to-yellow-300 border border-yellow-200 font-semibold"
+              onClick={() => {
+                setMessages([...messages, { from: 'user', text: 'pricing' }]);
+                setTimeout(() => handleUserMessage('pricing'), 400);
+              }}
+            >
+              Pricing
+            </button>
             {SERVICES.map((service, i) => (
               <button
                 key={i}

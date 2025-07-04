@@ -235,84 +235,58 @@ const MedistatPackages = () => {
     {
       id: 'basic',
       name: 'Basic',
-      price: '₹1',
-      originalPrice: '₹20,000',
-      duration: '2-3 weeks',
+      price: '₹5999',
+      originalPrice: '',
+      duration: '',
       popular: false,
       color: 'from-blue-500 to-blue-600',
       hover: 'ring-blue-500',
       icon: <FileText className="w-8 h-8" />,
-      description: 'Perfect for individual researchers and small projects',
+      description: 'Draft portfolio with basic reflective models and sample structure.',
       features: [
-        'Basic Statistical Analysis (Descriptive Statistics)',
-        'Data Cleaning & Preparation',
-        'Simple Visualization (Charts & Graphs)',
-        'Research Methodology Guidance',
-        'Basic Report Generation',
-        'Email Support',
-        'Single Revision Included',
-        'Data Security & Confidentiality'
+        '3000 words draft (80–90% complete)',
+        'Uses 1–2 reflective models',
+        'Sample-based structure',
+        'Placeholder citations for your use',
+        'No reference formatting'
       ],
-      limitations: [
-        'Limited to 2 statistical tests',
-        'Basic visualization only',
-        'No advanced modeling'
-      ]
+      limitations: []
     },
     {
-      id: 'enhanced',
-      name: 'Enhanced',
-      price: '₹35,000',
-      originalPrice: '₹45,000',
-      duration: '3-4 weeks',
-      popular: true,
+      id: 'standard',
+      name: 'Standard',
+      price: '₹7999',
+      originalPrice: '',
+      duration: '',
+      popular: false,
       color: 'from-purple-500 to-purple-600',
       hover: 'ring-purple-500',
       icon: <BarChart3 className="w-8 h-8" />,
-      description: 'Comprehensive solution for advanced research projects',
+      description: 'Complete portfolio with multiple reflective models and references.',
       features: [
-        'Advanced Statistical Analysis (Inferential Statistics)',
-        'Multiple Statistical Tests & Models',
-        'Professional Data Visualization',
-        'Research Design Consultation',
-        'Comprehensive Report with Interpretation',
-        'Literature Review Assistance',
-        'Priority Email & Phone Support',
-        'Up to 3 Revisions',
-        'Publication-Ready Outputs',
-        'SPSS/R/Python Analysis',
-        'Sample Size Calculation'
+        '3000 words full portfolio (100% complete)',
+        'Uses 3–4 reflective models (Borton, Kolb, Driscoll, Knott & Scragg)',
+        'Personalized reflective writing (based on your experience or shared points)',
+        'Harvard-style reference list (8–10 sources)'
       ],
-      limitations: [
-        'Limited to standard statistical methods',
-        'No machine learning models'
-      ]
+      limitations: []
     },
     {
-      id: 'professional',
-      name: 'Professional',
-      price: '₹75,000',
-      originalPrice: '₹95,000',
-      duration: '4-6 weeks',
+      id: 'premium',
+      name: 'Premium',
+      price: '₹9999',
+      originalPrice: '',
+      duration: '',
       popular: false,
       color: 'from-green-500 to-green-600',
       hover: 'green-500',
       icon: <Award className="w-8 h-8" />,
-      description: 'Premium package for PhD research and publications',
+      description: 'Turnitin-safe, original writing with advanced referencing and grammar check.',
       features: [
-        'Complete Research Support (Proposal to Publication)',
-        'Advanced Statistical Modeling & Machine Learning',
-        'Meta-Analysis & Systematic Review',
-        'Custom Dashboard & Interactive Visualizations',
-        'Dedicated Research Consultant',
-        'Manuscript Writing Support',
-        '24/7 Priority Support',
-        'Unlimited Revisions',
-        'Journal Submission Assistance',
-        'Plagiarism Check & Formatting',
-        'Video Consultations',
-        'Advanced Software Training',
-        'Follow-up Support (3 months)'
+        'Full Turnitin-safe rewrite of any shared inputs',
+        'Original reflection writing—crafted to sound like your voice',
+        'Advanced referencing with scholarly sources (10–15)',
+        'Grammar-perfect copy + Grammarly checked'
       ],
       limitations: []
     }
@@ -729,11 +703,7 @@ const MedistatPackages = () => {
           {packages.map((pkg) => (
             <div
               key={pkg.id}
-              className={`group relative bg-white rounded-3xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:ring-4 hover:ring-opacity-50 ${
-                pkg.popular 
-                  ? 'ring-4 ring-purple-500 ring-opacity-50 hover:ring-purple-600' 
-                  : `hover:${pkg.hover}`
-              }`}
+              className={`group relative bg-white rounded-3xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2`}
             >
               {pkg.popular && (
                 <div className="absolute top-10 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
