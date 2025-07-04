@@ -541,22 +541,12 @@ const Stats = () => {
         <meta name="twitter:description" content="Explore Medistat's research analytics, service usage, and performance insights. Trusted by 500+ researchers and students." />
         <meta name="twitter:image" content="/images/logo.jpg" />
       </Helmet>
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div className="flex min-h-screen flex-col md:flex-row">
         {/* Hamburger icon */}
         <button
           onClick={() => setSidebarOpen(true)}
-          style={{
-            position: 'fixed',
-            top: 16,
-            left: 16,
-            zIndex: 101,
-            background: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: 8,
-            padding: 8,
-            display: sidebarOpen ? 'none' : 'block',
-            boxShadow: '0 2px 8px #0001',
-          }}
+          className="fixed top-4 left-4 z-[101] bg-white border border-gray-200 rounded-lg p-2 shadow-md md:hidden"
+          style={{ display: sidebarOpen ? 'none' : 'block' }}
           aria-label="Open sidebar"
         >
           <Menu size={28} color="#2563eb" />
@@ -567,19 +557,10 @@ const Stats = () => {
         {sidebarOpen && (
           <div
             onClick={() => setSidebarOpen(false)}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              height: '100vh',
-              background: 'rgba(30,41,59,0.25)',
-              zIndex: 100,
-              transition: 'opacity 0.3s',
-            }}
+            className="fixed inset-0 bg-slate-900/25 z-[100] transition-opacity md:hidden"
           />
         )}
-        <div style={{ flex: 1 }}>
+        <div className="flex-1">
           <div className="dashboard-container">
             <style jsx>{`
               .dashboard-container {
@@ -1245,28 +1226,28 @@ const Stats = () => {
             </div>
 
             {/* Main Content */}
-            <div className="dashboard-content">
-              <div className="page-title">Payment Analytics</div>
-              <div className="page-subtitle">Comprehensive insights into your payment performance</div>
+            <div className="dashboard-content px-2 sm:px-4 md:px-6 max-w-7xl mx-auto py-4 md:py-6">
+              <div className="page-title text-slate-900 text-2xl md:text-3xl font-bold mb-1">Payment Analytics</div>
+              <div className="page-subtitle text-slate-500 text-base md:text-lg mb-6">Comprehensive insights into your payment performance</div>
 
               {loading && (
-                <div className="loading">
-                  <div className="spinner"></div>
+                <div className="loading text-center py-12 text-slate-400">
+                  <div className="spinner mx-auto mb-4" />
                   <p>Loading payment data...</p>
                 </div>
               )}
 
               {error && (
-                <div className="error">
-                  <p>Error loading data: {error}</p>
-                  <button onClick={fetchPaymentData} className="retry-btn">Retry</button>
+                <div className="error text-center py-8 bg-white/95 rounded-xl border border-red-200 my-6">
+                  <p className="text-red-600">Error loading data: {error}</p>
+                  <button onClick={fetchPaymentData} className="retry-btn mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">Retry</button>
                 </div>
               )}
 
               {!loading && !error && stats && (
                 <>
                   {/* Statistics Cards */}
-                  <div className="stats-grid">
+                  <div className="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div className="stat-card">
                       <div className="stat-header">
                         <div className="stat-icon blue">📊</div>
@@ -1310,7 +1291,7 @@ const Stats = () => {
                   </div>
 
                   {/* Package Distribution & Payment Methods */}
-                  <div className="dashboard-sections">
+                  <div className="dashboard-sections grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                     <div className="dashboard-section">
                       <div className="section-header">
                         <div className="section-title">
@@ -1339,11 +1320,11 @@ const Stats = () => {
                         </div>
                       </div>
                       {Object.keys(stats.paymentMethods).length > 0 ? (
-                        <div className="chart-content">
+                        <div className="chart-content flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 w-full max-w-md mx-auto">
                           <RingChart data={stats.paymentMethods} size={220} strokeWidth={18} />
                         </div>
                       ) : (
-                        <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                        <div className="text-center py-8 text-slate-400">
                           No payment data available for this month
                         </div>
                       )}
@@ -1351,19 +1332,18 @@ const Stats = () => {
                   </div>
 
                   {/* Payment History Table */}
-                  <div className="table-section">
-                    <div className="table-header">
-                      <div className="section-title">
+                  <div className="table-section bg-white/95 rounded-xl border border-gray-200 shadow-sm p-2 sm:p-4 overflow-x-auto">
+                    <div className="table-header flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+                      <div className="section-title flex items-center gap-2 text-lg font-semibold text-slate-800">
                         <div className="section-icon">📋</div>
                         Payment History
                       </div>
-                      <button onClick={exportToCSV} className="export-btn">
+                      <button onClick={exportToCSV} className="export-btn px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-md flex items-center gap-2 text-xs font-medium">
                         📥 Export to CSV
                       </button>
                     </div>
-                    
-                    <div className="table-container">
-                      <table className="payment-table">
+                    <div className="table-container overflow-x-auto rounded-lg border border-gray-200">
+                      <table className="payment-table min-w-full text-xs md:text-sm">
                         <thead>
                           <tr>
                             <th>Date</th>
@@ -1389,34 +1369,34 @@ const Stats = () => {
                             
                             return (
                               <tr key={index}>
-                                <td>{timestamp ? new Date(timestamp).toLocaleDateString() : ''}</td>
-                                <td>{name}</td>
-                                <td>{email}</td>
-                                <td>{phone}</td>
-                                <td>{packageName}</td>
-                                <td>{amount}</td>
-                                <td>{upiId}</td>
-                                <td>
+                                <td className="px-2 py-2 whitespace-nowrap">{timestamp ? new Date(timestamp).toLocaleDateString() : ''}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{name}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{email}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{phone}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{packageName}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{amount}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{upiId}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">
                                   <span className="status-badge completed">Completed</span>
-                                  <span style={{ display: 'inline-flex', gap: 4, marginLeft: 8 }}>
+                                  <span className="inline-flex gap-1 ml-2">
                                     <button
-                                      style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem', borderRadius: 4, border: 'none', background: '#f59e0b', color: 'white', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                                        onClick={() => downloadInvoicePDF(payment, index)}
-                                        title="Download Invoice PDF"
-                                        disabled={pdfUploadStatus[index]?.status === 'generating' || pdfUploadStatus[index]?.status === 'uploading'}
-                                      >
-                                        <Download size={14} />
-                                      </button>
+                                      className="text-xs px-2 py-1 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+                                      onClick={() => downloadInvoicePDF(payment, index)}
+                                      title="Download Invoice PDF"
+                                      disabled={pdfUploadStatus[index]?.status === 'generating' || pdfUploadStatus[index]?.status === 'uploading'}
+                                    >
+                                      <Download size={14} />
+                                    </button>
                                     <button
-                                      style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem', borderRadius: 4, border: 'none', background: '#3b82f6', color: 'white', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                                        onClick={() => sendInvoice(payment, index)}
-                                        disabled={invoiceStatus[index] === 'sending'}
-                                        title="Send Invoice"
-                                      >
-                                        {invoiceStatus[index] === 'sending' ? 'Sending...' : invoiceStatus[index] === 'sent' ? 'Sent!' : invoiceStatus[index] === 'error' ? 'Error' : (<><span>Send Invoice</span></>)}
-                                      </button>
+                                      className="text-xs px-2 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+                                      onClick={() => sendInvoice(payment, index)}
+                                      disabled={invoiceStatus[index] === 'sending'}
+                                      title="Send Invoice"
+                                    >
+                                      {invoiceStatus[index] === 'sending' ? 'Sending...' : invoiceStatus[index] === 'sent' ? 'Sent!' : invoiceStatus[index] === 'error' ? 'Error' : (<><span>Send Invoice</span></>)}
+                                    </button>
                                     {pdfUploadStatus[index]?.status === 'done' && pdfUploadStatus[index]?.link && (
-                                      <a href={pdfUploadStatus[index].link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: '#10b981', marginLeft: 4, display: 'none' }}>View PDF</a>
+                                      <a href={pdfUploadStatus[index].link} target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 ml-1 hidden">View PDF</a>
                                     )}
                                   </span>
                                 </td>

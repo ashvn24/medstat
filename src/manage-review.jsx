@@ -240,22 +240,12 @@ const ManageReview = () => {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="flex min-h-screen flex-col md:flex-row">
       {/* Hamburger icon */}
       <button
         onClick={() => setSidebarOpen(true)}
-        style={{
-          position: 'fixed',
-          top: 16,
-          left: 16,
-          zIndex: 101,
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: 8,
-          padding: 8,
-          display: sidebarOpen ? 'none' : 'block',
-          boxShadow: '0 2px 8px #0001',
-        }}
+        className="fixed top-4 left-4 z-[101] bg-white border border-gray-200 rounded-lg p-2 shadow-md md:hidden"
+        style={{ display: sidebarOpen ? 'none' : 'block' }}
         aria-label="Open sidebar"
       >
         <Menu size={28} color="#2563eb" />
@@ -266,23 +256,14 @@ const ManageReview = () => {
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(30,41,59,0.25)',
-            zIndex: 100,
-            transition: 'opacity 0.3s',
-          }}
+          className="fixed inset-0 bg-slate-900/25 z-[100] transition-opacity md:hidden"
         />
       )}
-      <div style={{ flex: 1 }}>
-        <div className="min-h-screen bg-gray-50">
+      <div className="flex-1">
+        <div className="min-h-screen bg-gray-50 px-2 sm:px-4 md:px-8 py-4 md:py-8">
           {/* Header */}
           <div className="bg-white shadow-sm border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-lg bg-blue-100">
@@ -307,9 +288,9 @@ const ManageReview = () => {
           </div>
 
           {/* Main Content */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 md:py-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center">
                   <div className="p-2 rounded-lg bg-blue-100">
@@ -373,7 +354,7 @@ const ManageReview = () => {
             </div>
 
             {/* Search and Filters */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
@@ -435,7 +416,7 @@ const ManageReview = () => {
             {/* Testimonials Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 text-xs md:text-sm">
                   <thead className="bg-gray-50">
                     <tr>
                       {ALL_COLUMNS.filter(col => selectedColumns.includes(col.key)).map(col => (

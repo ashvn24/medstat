@@ -108,22 +108,12 @@ export default function ManageTasks() {
     setEditForm({ title: '', description: '', priority: 'medium' });
   };
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="flex min-h-screen flex-col md:flex-row">
       {/* Hamburger icon */}
       <button
         onClick={() => setSidebarOpen(true)}
-        style={{
-          position: 'fixed',
-          top: 16,
-          left: 16,
-          zIndex: 101,
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: 8,
-          padding: 8,
-          display: sidebarOpen ? 'none' : 'block',
-          boxShadow: '0 2px 8px #0001',
-        }}
+        className="fixed top-4 left-4 z-[101] bg-white border border-gray-200 rounded-lg p-2 shadow-md md:hidden"
+        style={{ display: sidebarOpen ? 'none' : 'block' }}
         aria-label="Open sidebar"
       >
         <Menu size={28} color="#2563eb" />
@@ -134,81 +124,72 @@ export default function ManageTasks() {
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(30,41,59,0.25)',
-            zIndex: 100,
-            transition: 'opacity 0.3s',
-          }}
+          className="fixed inset-0 bg-slate-900/25 z-[100] transition-opacity md:hidden"
         />
       )}
-      <div style={{ flex: 1 }}>
-        <div style={{ padding: 32, background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%)', minHeight: '100vh', fontFamily: 'Inter, Segoe UI, Arial, sans-serif' }}>
-          <h1 style={{ fontSize: 32, fontWeight: 800, color: '#1e293b', marginBottom: 24, letterSpacing: -1, marginLeft: 40 }}>🗂️ Manage Tasks <span style={{ color: '#3b82f6', fontWeight: 700 }}></span></h1>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32, alignItems: 'flex-start' }}>
+      <div className="flex-1">
+        <div className="py-4 md:py-8 px-2 sm:px-4 md:px-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen font-sans">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-4 md:mb-8 tracking-tight ml-0 md:ml-10">🗂️ Manage Tasks</h1>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 items-start">
             {columns.map(col => (
-              <div key={col.id} style={{ background: '#fff', borderRadius: 18, boxShadow: '0 4px 24px #0002', padding: 20, minHeight: 520, border: draggedFrom === col.id ? '2px solid #3b82f6' : '1px solid #e5e7eb', transition: 'border 0.2s' }}
+              <div key={col.id} className="bg-white border border-gray-200 rounded-lg shadow-md p-4 min-h-[520px] transition-border"
                 onDragOver={e => e.preventDefault()}
                 onDrop={() => handleDrop(col.id)}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-                  <h2 style={{ fontSize: 22, fontWeight: 700, color: '#1e293b', letterSpacing: -0.5 }}>{col.title}</h2>
-                  <span style={{ background: '#e0e7ef', borderRadius: 8, padding: '2px 12px', fontSize: 14, color: '#3b82f6', fontWeight: 600 }}>{col.tasks.length}</span>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-extrabold text-slate-900">{col.title}</h2>
+                  <span className="bg-gray-100 border border-gray-200 rounded-lg px-2 py-1 text-sm text-blue-600 font-medium">{col.tasks.length}</span>
                 </div>
-                <div style={{ minHeight: 420 }}>
+                <div className="min-h-[420px]">
                   {col.tasks.map(task => (
                     <div key={task.id} draggable={editing?.id !== task.id}
                       onDragStart={() => handleDragStart(task, col.id)}
-                      style={{ background: draggedTask?.id === task.id ? '#dbeafe' : '#f3f4f6', borderRadius: 12, marginBottom: 16, padding: 16, boxShadow: draggedTask?.id === task.id ? '0 6px 24px #3b82f655' : '0 2px 8px #0001', cursor: editing?.id === task.id ? 'default' : 'grab', opacity: draggedTask?.id === task.id ? 0.7 : 1, border: '1.5px solid #e5e7eb', transition: 'all 0.18s cubic-bezier(.4,2,.6,1)' }}
+                      className="bg-gray-50 border border-gray-200 rounded-lg mb-4 p-4 transition-border"
                     >
                       {editing?.id === task.id && editing.colId === col.id ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                          <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} placeholder="Task title" style={{ padding: 8, borderRadius: 6, border: '1.5px solid #cbd5e1', fontSize: 15, fontWeight: 600, marginBottom: 2 }} />
-                          <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} style={{ padding: 8, borderRadius: 6, border: '1.5px solid #cbd5e1', fontSize: 14, marginBottom: 2 }} />
-                          <select value={editForm.priority} onChange={e => setEditForm(f => ({ ...f, priority: e.target.value }))} style={{ padding: 8, borderRadius: 6, border: '1.5px solid #cbd5e1', fontSize: 14, marginBottom: 2 }}>
+                        <div className="flex flex-col gap-4">
+                          <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} placeholder="Task title" className="p-2 border border-gray-300 rounded-lg" />
+                          <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} className="p-2 border border-gray-300 rounded-lg" />
+                          <select value={editForm.priority} onChange={e => setEditForm(f => ({ ...f, priority: e.target.value }))} className="p-2 border border-gray-300 rounded-lg">
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
                             <option value="high">High</option>
                           </select>
-                          <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
-                            <button onClick={() => saveEdit(task.id, col.id)} style={{ background: 'linear-gradient(90deg,#3b82f6,#2563eb)', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 18px', fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px #3b82f633', letterSpacing: 0.2 }}>Save</button>
-                            <button onClick={cancelEdit} style={{ background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 6, padding: '7px 18px', fontWeight: 600, fontSize: 15 }}>Cancel</button>
+                          <div className="flex gap-4 mt-2">
+                            <button onClick={() => saveEdit(task.id, col.id)} className="bg-blue-500 text-white border border-transparent rounded-lg px-4 py-2 font-medium">Save</button>
+                            <button onClick={cancelEdit} className="bg-gray-200 text-gray-500 border border-transparent rounded-lg px-4 py-2 font-medium">Cancel</button>
                           </div>
                         </div>
                       ) : (
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                          <div className="flex items-center gap-2 mb-2">
                             <GripVertical size={18} color="#9ca3af" />
-                            <span style={{ fontWeight: 700, fontSize: 16, color: '#1e293b' }}>{task.title}</span>
-                            <span style={{ marginLeft: 'auto', background: priorityColors[task.priority].bg, color: priorityColors[task.priority].color, borderRadius: 8, fontSize: 13, padding: '3px 12px', fontWeight: 600, border: `1.5px solid ${priorityColors[task.priority].color}` }}>{task.priority}</span>
-                            <button onClick={() => startEdit(task, col.id)} style={{ background: 'none', border: 'none', marginLeft: 8, cursor: 'pointer' }} title="Edit"><Edit size={17} color="#3b82f6" /></button>
-                            <button onClick={() => deleteTask(task.id, col.id)} style={{ background: 'none', border: 'none', marginLeft: 2, cursor: 'pointer' }} title="Delete"><X size={17} color="#ef4444" /></button>
+                            <span className="font-medium text-slate-900">{task.title}</span>
+                            <span className="ml-auto bg-gray-100 text-gray-500 border border-gray-200 rounded-lg px-2 py-1 text-sm font-medium">{task.priority}</span>
+                            <button onClick={() => startEdit(task, col.id)} className="bg-transparent border-transparent text-blue-500 rounded-lg ml-2 cursor-pointer" title="Edit"><Edit size={17} color="#3b82f6" /></button>
+                            <button onClick={() => deleteTask(task.id, col.id)} className="bg-transparent border-transparent text-red-500 rounded-lg ml-2 cursor-pointer" title="Delete"><X size={17} color="#ef4444" /></button>
                           </div>
-                          {task.description && <div style={{ fontSize: 14, color: '#64748b', marginBottom: 4, marginLeft: 28 }}>{task.description}</div>}
+                          {task.description && <div className="text-sm text-gray-500">{task.description}</div>}
                         </div>
                       )}
                     </div>
                   ))}
                   {addingTo === col.id ? (
-                    <div style={{ background: '#f3f4f6', borderRadius: 10, padding: 14, marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 10, boxShadow: '0 2px 8px #3b82f622' }}>
-                      <input value={newTask.title} onChange={e => setNewTask(f => ({ ...f, title: e.target.value }))} placeholder="Task title" style={{ padding: 8, borderRadius: 6, border: '1.5px solid #cbd5e1', fontSize: 15, fontWeight: 600, marginBottom: 2 }} />
-                      <textarea value={newTask.description} onChange={e => setNewTask(f => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} style={{ padding: 8, borderRadius: 6, border: '1.5px solid #cbd5e1', fontSize: 14, marginBottom: 2 }} />
-                      <select value={newTask.priority} onChange={e => setNewTask(f => ({ ...f, priority: e.target.value }))} style={{ padding: 8, borderRadius: 6, border: '1.5px solid #cbd5e1', fontSize: 14, marginBottom: 2 }}>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <input value={newTask.title} onChange={e => setNewTask(f => ({ ...f, title: e.target.value }))} placeholder="Task title" className="p-2 border border-gray-300 rounded-lg" />
+                      <textarea value={newTask.description} onChange={e => setNewTask(f => ({ ...f, description: e.target.value }))} placeholder="Description" rows={2} className="p-2 border border-gray-300 rounded-lg" />
+                      <select value={newTask.priority} onChange={e => setNewTask(f => ({ ...f, priority: e.target.value }))} className="p-2 border border-gray-300 rounded-lg">
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
                         <option value="high">High</option>
                       </select>
-                      <div style={{ display: 'flex', gap: 10, marginTop: 2 }}>
-                        <button onClick={() => addTask(col.id)} style={{ background: 'linear-gradient(90deg,#3b82f6,#2563eb)', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 18px', fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px #3b82f633', letterSpacing: 0.2 }}>Add</button>
-                        <button onClick={() => { setAddingTo(null); setNewTask({ title: '', description: '', priority: 'medium' }); }} style={{ background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 6, padding: '7px 18px', fontWeight: 600, fontSize: 15 }}>Cancel</button>
+                      <div className="flex gap-4 mt-2">
+                        <button onClick={() => addTask(col.id)} className="bg-blue-500 text-white border border-transparent rounded-lg px-4 py-2 font-medium">Add</button>
+                        <button onClick={() => { setAddingTo(null); setNewTask({ title: '', description: '', priority: 'medium' }); }} className="bg-gray-200 text-gray-500 border border-transparent rounded-lg px-4 py-2 font-medium">Cancel</button>
                       </div>
                     </div>
                   ) : (
-                    <button onClick={() => setAddingTo(col.id)} style={{ width: '100%', background: '#f1f5f9', color: '#3b82f6', border: '2px dashed #cbd5e1', borderRadius: 10, padding: '10px 0', fontWeight: 600, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 10, cursor: 'pointer', transition: 'border 0.2s, background 0.2s' }}><Plus size={18} /> Add Task</button>
+                    <button onClick={() => setAddingTo(col.id)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 font-medium text-blue-600">Add Task</button>
                   )}
                 </div>
               </div>
