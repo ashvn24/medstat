@@ -117,8 +117,13 @@ const RingChart = ({ data, size = 200, strokeWidth = 20 }) => {
   );
 };
 
+const getCurrentMonthString = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+};
+
 const Stats = () => {
-  const [selectedMonth, setSelectedMonth] = useState('2025-06'); // Set to June 2025 to match the data
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthString());
   const [paymentData, setPaymentData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

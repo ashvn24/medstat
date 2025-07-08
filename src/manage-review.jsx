@@ -19,7 +19,9 @@ import {
   X,
   BarChart3,
   NotebookPen,
-  Package
+  Package,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import Papa from 'papaparse';
 import { Link, useLocation } from 'react-router-dom';
@@ -45,6 +47,7 @@ const ManageReview = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   // Define all columns and their keys/labels
   const ALL_COLUMNS = [
@@ -121,6 +124,44 @@ const ManageReview = () => {
       setFilteredTestimonials(filtered);
     }
   }, [searchTerm, testimonials]);
+
+  // Helper to robustly parse date strings (strictly DD/MM/YYYY for Timestamp)
+  function parseDateString(dateStr) {
+    if (!dateStr) return NaN;
+    // Expecting DD/MM/YYYY
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      const [day, month, year] = parts.map(x => parseInt(x, 10));
+      if (year > 1900 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        return new Date(year, month - 1, day).getTime();
+      }
+    }
+    // Fallback to Date.parse for other formats
+    const d = new Date(dateStr);
+    if (!isNaN(d)) return d.getTime();
+    return NaN;
+  }
+
+  const sortedTestimonials = React.useMemo(() => {
+    if (!sortConfig.key) return filteredTestimonials;
+    const sorted = [...filteredTestimonials].sort((a, b) => {
+      let aValue = a[sortConfig.key] || '';
+      let bValue = b[sortConfig.key] || '';
+      // Special handling for date column
+      if (sortConfig.key === 'Timestamp') {
+        const aTime = parseDateString(aValue);
+        const bTime = parseDateString(bValue);
+        if (isNaN(aTime) && isNaN(bTime)) return 0;
+        if (isNaN(aTime)) return 1;
+        if (isNaN(bTime)) return -1;
+        return sortConfig.direction === 'asc' ? aTime - bTime : bTime - aTime;
+      }
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [filteredTestimonials, sortConfig]);
 
   const handleView = (testimonial) => {
     setSelectedTestimonial(testimonial);
@@ -419,14 +460,38 @@ const ManageReview = () => {
                 <table className="min-w-full divide-y divide-gray-200 text-xs md:text-sm">
                   <thead className="bg-gray-50">
                     <tr>
-                      {ALL_COLUMNS.filter(col => selectedColumns.includes(col.key)).map(col => (
-                        <th key={col.key} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{col.label}</th>
-                      ))}
+                      {ALL_COLUMNS.filter(col => selectedColumns.includes(col.key)).map(col => {
+                        const isSorted = sortConfig.key === col.key;
+                        return (
+                          <th
+                            key={col.key}
+                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                            onClick={() => {
+                              setSortConfig(prev => {
+                                if (prev.key === col.key) {
+                                  return { key: col.key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+                                } else {
+                                  return { key: col.key, direction: 'asc' };
+                                }
+                              });
+                            }}
+                          >
+                            <span className="inline-flex items-center">
+                              {col.label}
+                              {isSorted ? (
+                                sortConfig.direction === 'asc' ? <ChevronUp className="w-4 h-4 ml-1 inline" /> : <ChevronDown className="w-4 h-4 ml-1 inline" />
+                              ) : (
+                                <span className="w-4 h-4 ml-1 inline-block opacity-30"><ChevronUp className="w-4 h-4" /></span>
+                              )}
+                            </span>
+                          </th>
+                        );
+                      })}
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredTestimonials.map((testimonial, index) => {
+                    {sortedTestimonials.map((testimonial, index) => {
                       // Use a unique key (Timestamp + Full Name) to find the index in the full testimonials array, trimming whitespace
                       const fullIndex = testimonials.findIndex(
                         t =>
