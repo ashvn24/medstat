@@ -2,26 +2,50 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://medstat-one.vercel.app/</loc>
+    <lastmod>2024-06-07</lastmod>
   </url>
   <url>
     <loc>https://medstat-one.vercel.app/plan</loc>
+    <lastmod>2024-06-07</lastmod>
   </url>
   <url>
     <loc>https://medstat-one.vercel.app/stats</loc>
+    <lastmod>2024-06-07</lastmod>
   </url>
   <url>
     <loc>https://medstat-one.vercel.app/manage-review</loc>
+    <lastmod>2024-06-07</lastmod>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/manage-tasks</loc>
+    <lastmod>2024-06-07</lastmod>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/payment</loc>
+    <lastmod>2024-06-07</lastmod>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/contact</loc>
+    <lastmod>2024-06-07</lastmod>
+  </url>
+  <url>
+    <loc>https://medstat-one.vercel.app/support-chat</loc>
+    <lastmod>2024-06-07</lastmod>
   </url>
   <url>
     <loc>https://medstat-one.vercel.app/#services</loc>
+    <lastmod>2024-06-07</lastmod>
   </url>
   <url>
     <loc>https://medstat-one.vercel.app/#work</loc>
+    <lastmod>2024-06-07</lastmod>
   </url>
   <url>
     <loc>https://medstat-one.vercel.app/#testimonials</loc>
+    <lastmod>2024-06-07</lastmod>
   </url>
   <url>
     <loc>https://medstat-one.vercel.app/#contact</loc>
+    <lastmod>2024-06-07</lastmod>
   </url>
 </urlset> 

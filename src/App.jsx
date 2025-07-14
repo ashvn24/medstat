@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BarChart3, Users, Target, Award, ChevronRight, Menu, X, Mail, Phone, MapPin, TrendingUp, Database, FileText, CheckCircle, NotebookPen } from 'lucide-react';
 import Papa from 'papaparse';
 import ContactSection from './contact.jsx'
 import SupportChat from './support-chat.jsx'
 import { Helmet } from 'react-helmet';
+import { motion, useAnimation, useMotionValue, useTransform } from 'framer-motion';
 
 const renderStars = (rating) => {
   const stars = [];
@@ -127,21 +128,101 @@ const MedistatLanding = () => {
 
   console.log(activeSection);
   
+  // Parallax state for hero blobs
+  const [parallax, setParallax] = useState({ x: 0, y: 0 });
+  const heroRef = useRef(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!heroRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width - 0.5) * 40; // -20 to 20
+      const y = ((e.clientY - rect.top) / rect.height - 0.5) * 40;
+      setParallax({ x, y });
+    };
+    const hero = heroRef.current;
+    if (hero) hero.addEventListener('mousemove', handleMouseMove);
+    return () => { if (hero) hero.removeEventListener('mousemove', handleMouseMove); };
+  }, []);
+
+  // Animated number counters for hero stats
+  const stats = [
+    { label: 'Projects Completed', value: 100, color: 'text-blue-600' },
+    { label: 'Success Rate', value: 98, color: 'text-purple-600', suffix: '%' },
+    { label: 'Support', value: 24, color: 'text-green-600', suffix: '/7' },
+  ];
+
+  const [statsInView, setStatsInView] = useState(false);
+  const statsRef = useRef(null);
+  useEffect(() => {
+    const onScroll = () => {
+      if (!statsRef.current) return;
+      const rect = statsRef.current.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        setStatsInView(true);
+      }
+    };
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // --- Bar Chart Interactivity ---
+  const [barHeights, setBarHeights] = useState([64, 96, 80, 112, 72, 104, 88]); // default heights in px
+  const chartRef = useRef(null);
+
+  const handleBarChartMouseMove = (e) => {
+    if (!chartRef.current) return;
+    const rect = chartRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const chartWidth = rect.width;
+    // 7 bars, get relative distance to each bar center
+    const barCount = 7;
+    const barWidth = chartWidth / barCount;
+    const newHeights = Array.from({ length: barCount }).map((_, i) => {
+      const barCenter = barWidth * (i + 0.5);
+      const dist = Math.abs(x - barCenter);
+      // The closer to the mouse, the taller the bar (max 120px, min 56px)
+      const maxH = 120, minH = 56;
+      const influence = Math.max(0, 1 - dist / (chartWidth / 2));
+      return Math.round(minH + (maxH - minH) * influence);
+    });
+    setBarHeights(newHeights);
+  };
+
+  const handleBarChartMouseLeave = () => {
+    setBarHeights([64, 96, 80, 112, 72, 104, 88]); // reset to default
+  };
+
+  // Audio ref for tick sound
+  const tickAudioRef = useRef(null);
+  const playTick = () => {
+    if (tickAudioRef.current) {
+      tickAudioRef.current.currentTime = 0;
+      tickAudioRef.current.play();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Tick sound audio */}
+      <audio ref={tickAudioRef} src="/tick.wav" preload="auto" />
       <Helmet>
         <title>Medistat Solutions | Statistical Analysis, Thesis Assistance, Data Analytics</title>
         <meta name="description" content="Empowering researchers and students with expert statistical analysis, thesis assistance, and data analytics solutions. Trusted by 500+ researchers." />
+        <meta name="keywords" content="statistical analysis, thesis assistance, data analytics, research support, academic writing, Medistat Solutions, medical statistics, research consulting, data science, academic services, India" />
+        <meta name="author" content="Medistat Solutions" />
+        <link rel="canonical" href="https://medstat-one.vercel.app/" />
+        <link rel="icon" href="/images/logo.jpg" type="image/jpeg" />
         <meta property="og:title" content="Medistat Solutions | Statistical Analysis, Thesis Assistance, Data Analytics" />
         <meta property="og:description" content="Empowering researchers and students with expert statistical analysis, thesis assistance, and data analytics solutions. Trusted by 500+ researchers." />
-        <meta property="og:image" content="/images/logo.jpg" />
+        <meta property="og:image" content="https://medstat-one.vercel.app/images/logo.jpg" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://medstat-one.vercel.app/" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Medistat Solutions | Statistical Analysis, Thesis Assistance, Data Analytics" />
         <meta name="twitter:description" content="Empowering researchers and students with expert statistical analysis, thesis assistance, and data analytics solutions. Trusted by 500+ researchers." />
-        <meta name="twitter:image" content="/images/logo.jpg" />
+        <meta name="twitter:image" content="https://medstat-one.vercel.app/images/logo.jpg" />
         <script type="application/ld+json">{`
           {
             "@context": "https://schema.org",
@@ -163,7 +244,9 @@ const MedistatLanding = () => {
               "addressCountry": "India"
             },
             "sameAs": [
-              "https://www.linkedin.com/company/medistat-solutions/"
+              "https://www.linkedin.com/company/medistat-solutions/",
+              "https://www.facebook.com/medistatsolutions",
+              "https://twitter.com/medistatsoln"
             ],
             "description": "Empowering researchers and students with expert statistical analysis, thesis assistance, and data analytics solutions."
           }
@@ -182,14 +265,14 @@ const MedistatLanding = () => {
       </Helmet>
       {/* Navigation */}
       <header>
-      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-lg z-50 transition-all duration-300" aria-label="Main Navigation">
+      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-lg z-50 transition-all duration-300" aria-label="Main Navigation" role="navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-2">
               <div className="p-1 rounded-lg">
                 <img
                   src="/images/logo.jpg"
-                  alt="Medistat Logo"
+                  alt="Medistat Solutions Logo - Trusted Statistical Analysis and Academic Services"
                   className="w-10 h-10 object-contain"
                 />
               </div>
@@ -204,9 +287,11 @@ const MedistatLanding = () => {
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}
-                  className={`capitalize text-sm font-medium transition-all duration-300 hover:text-blue-600 relative ${
+                  onMouseEnter={playTick}
+                  className={`capitalize text-sm font-medium transition-all duration-200 hover:text-blue-600 relative menu-raise cursor-pointer ${
                     activeSection === item ? 'text-blue-600' : 'text-gray-700'
                   }`}
+                  style={{ background: 'none' }}
                 >
                   {item === 'work' ? 'Our Work' : item === 'contact' ? 'Contact Us' : item}
                   {activeSection === item && (
@@ -256,12 +341,22 @@ const MedistatLanding = () => {
       </header>
       <main>
       {/* Hero Section */}
-      <section id="home" className="pt-20 pb-12 bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+      <section id="home" className="pt-20 pb-12 bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden" ref={heroRef}>
         {/* Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400/10 rounded-full blur-3xl"></div>
-        </div>
+        <motion.div
+          className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl"
+          style={{
+            x: parallax.x * 0.7,
+            y: parallax.y * 0.5
+          }}
+        ></motion.div>
+        <motion.div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400/10 rounded-full blur-3xl"
+          style={{
+            x: parallax.x * -0.5,
+            y: parallax.y * -0.7
+          }}
+        ></motion.div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
@@ -299,19 +394,21 @@ const MedistatLanding = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-200">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">100+</div>
-                  <div className="text-sm text-gray-600">Projects Completed</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600">98%</div>
-                  <div className="text-sm text-gray-600">Success Rate</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600">24/7</div>
-                  <div className="text-sm text-gray-600">Support</div>
-                </div>
+              <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-200" ref={statsRef}>
+                {stats.map((stat, i) => (
+                  <div className="text-center" key={stat.label}>
+                    <div className={`text-3xl font-bold ${stat.color}`}>
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={statsInView ? { opacity: 1 } : {}}
+                        transition={{ duration: 0.3, delay: 0.2 + i * 0.2 }}
+                      >
+                        <AnimatedCounter value={stat.value} start={statsInView} suffix={stat.suffix || ''} />
+                      </motion.span>
+                    </div>
+                    <div className="text-sm text-gray-600">{stat.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -335,14 +432,19 @@ const MedistatLanding = () => {
                   </div>
                   
                   {/* Mock Bar Chart */}
-                  <div className="flex items-end space-x-2 h-32">
-                    <div className="bg-blue-500 w-6 h-16 rounded-t"></div>
-                    <div className="bg-purple-500 w-6 h-24 rounded-t"></div>
-                    <div className="bg-green-500 w-6 h-20 rounded-t"></div>
-                    <div className="bg-orange-500 w-6 h-28 rounded-t"></div>
-                    <div className="bg-red-500 w-6 h-18 rounded-t"></div>
-                    <div className="bg-indigo-500 w-6 h-26 rounded-t"></div>
-                    <div className="bg-pink-500 w-6 h-22 rounded-t"></div>
+                  <div
+                    className="flex items-end space-x-2 h-32 cursor-pointer select-none"
+                    ref={chartRef}
+                    onMouseMove={handleBarChartMouseMove}
+                    onMouseLeave={handleBarChartMouseLeave}
+                  >
+                    <div className="bg-blue-500 w-6 rounded-t transition-all duration-200" style={{ height: barHeights[0] }}></div>
+                    <div className="bg-purple-500 w-6 rounded-t transition-all duration-200" style={{ height: barHeights[1] }}></div>
+                    <div className="bg-green-500 w-6 rounded-t transition-all duration-200" style={{ height: barHeights[2] }}></div>
+                    <div className="bg-orange-500 w-6 rounded-t transition-all duration-200" style={{ height: barHeights[3] }}></div>
+                    <div className="bg-red-500 w-6 rounded-t transition-all duration-200" style={{ height: barHeights[4] }}></div>
+                    <div className="bg-indigo-500 w-6 rounded-t transition-all duration-200" style={{ height: barHeights[5] }}></div>
+                    <div className="bg-pink-500 w-6 rounded-t transition-all duration-200" style={{ height: barHeights[6] }}></div>
                   </div>
                   
                   <div className="flex justify-between text-xs text-gray-500 mt-2">
@@ -392,12 +494,17 @@ const MedistatLanding = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service, index) => (
-              <div
+              <motion.div
                 key={index}
-                className={`
-                        group p-6 bg-white rounded-xl shadow-md transition-transform duration-300 
-                        ${services.length === 4 && index === 3 ? 'lg:col-start-2' : ''}
-                      `}              >
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, delay: index * 0.15 }}
+                className={
+                  `group p-6 bg-white rounded-xl shadow-md transition-transform duration-300 \
+                  ${services.length === 4 && index === 3 ? 'lg:col-start-2' : ''}`
+                }
+              >
                 {/* Service Image/Illustration */}
                 <div className="mb-6 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center relative overflow-hidden">
                   {index === 0 && (
@@ -510,7 +617,7 @@ const MedistatLanding = () => {
                 <button className="mt-6 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 group-hover:from-blue-700 group-hover:to-purple-700">
                   Learn More
                 </button>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -530,8 +637,12 @@ const MedistatLanding = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {workExamples.map((work, index) => (
-              <div
+              <motion.div
                 key={index}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, delay: index * 0.18 }}
                 className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
               >
                 <div className={`h-48 bg-gradient-to-br ${work.color} p-6 flex items-center justify-center relative`}>
@@ -614,7 +725,7 @@ const MedistatLanding = () => {
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -624,7 +735,15 @@ const MedistatLanding = () => {
 
    <section id="testimonials" className="py-20  bg-gray-50 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-10">What Our <span className="text-pink-600">Clients</span> Say</h2>
+        <motion.h2
+          className="text-4xl font-bold text-center mb-10"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.7 }}
+        >
+          What Our <span className="text-pink-600">Clients</span> Say
+        </motion.h2>
         
         <div className="relative overflow-hidden">
           {/* Gradient overlays for smooth fade effect */}
@@ -671,63 +790,99 @@ const MedistatLanding = () => {
         .animate-scroll:hover {
           animation-play-state: paused;
         }
+        .menu-raise {
+          will-change: transform;
+        }
+        .menu-raise:hover, .menu-raise:focus {
+          transform: translateY(-4px) scale(1.06);
+          background: none !important;
+          box-shadow: none !important;
+          z-index: 2;
+        }
       `}</style>
     </section>
-
-      {/* Contact Section */}
-      <section id="contact">
+    {/* Contact Section */}
+    <section id="contact">
       <ContactSection/>
-      </section>
-      </main>
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow">
-                  <img
-                    src="/images/logo.jpg"
-                    alt="Medistat Logo"
-                    className="w-10 h-10 object-contain rounded-full"
-                  />
-                </div>
-                <span className="text-2xl font-bold">Medistat Solutions</span>
+    </section>
+    </main>
+    {/* Footer */}
+    <footer className="bg-gray-900 text-white py-12" aria-label="Footer" role="contentinfo">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-4 gap-8">
+          <div className="col-span-2">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow">
+                <img
+                  src="/images/logo.jpg"
+                  alt="Medistat Solutions Logo - Trusted Statistical Analysis and Academic Services"
+                  className="w-10 h-10 object-contain rounded-full"
+                />
               </div>
-              <p className="text-gray-400 mb-4 max-w-md">
-                Empowering researchers and students with world-class statistical analysis, 
-                thesis assistance, and data analytics solutions.
-              </p>
-              <div className="text-sm text-gray-500">
-                © 2025 Medistat. All rights reserved.
-              </div>
+              <span className="text-2xl font-bold">Medistat Solutions</span>
             </div>
-            
-            <div>
-              <h3 className="font-semibold mb-4">Services</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>Statistical Analysis</li>
-                <li>Thesis Assistance</li>
-                <li>Data Analytics</li>
-                <li>Research Support</li>
-              </ul>
+            <p className="text-gray-400 mb-4 max-w-md">
+              Empowering researchers and students with world-class statistical analysis, 
+              thesis assistance, and data analytics solutions.
+            </p>
+            <div className="text-sm text-gray-500">
+              © 2025 Medistat. All rights reserved.
             </div>
-            
-            <div>
-              <h3 className="font-semibold mb-4">Contact</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>medistatsolutions@gmail.com</li>
-                <li>+91 9744649329</li>
-                <li>Mangalore, Karnataka</li>
-                <li>India</li>
-              </ul>
+            <div className="flex space-x-4 mt-4">
+              <a href="https://www.linkedin.com/company/medistat-solutions/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <svg width="24" height="24" fill="currentColor" className="text-blue-400 hover:text-blue-600" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.784-1.75-1.75s.784-1.75 1.75-1.75 1.75.784 1.75 1.75-.784 1.75-1.75 1.75zm15.5 11.268h-3v-5.604c0-1.337-.025-3.063-1.868-3.063-1.868 0-2.154 1.459-2.154 2.967v5.7h-3v-10h2.881v1.367h.041c.401-.761 1.379-1.563 2.841-1.563 3.039 0 3.6 2.001 3.6 4.601v5.595z"/></svg>
+              </a>
+              <a href="https://www.facebook.com/medistatsolutions" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <svg width="24" height="24" fill="currentColor" className="text-blue-400 hover:text-blue-600" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.326v21.348c0 .733.592 1.326 1.325 1.326h11.495v-9.294h-3.128v-3.622h3.128v-2.672c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.312h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.326v-21.349c0-.734-.593-1.326-1.326-1.326z"/></svg>
+              </a>
+              <a href="https://twitter.com/medistatsoln" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                <svg width="24" height="24" fill="currentColor" className="text-blue-400 hover:text-blue-600" viewBox="0 0 24 24"><path d="M24 4.557a9.83 9.83 0 0 1-2.828.775 4.932 4.932 0 0 0 2.165-2.724c-.951.564-2.005.974-3.127 1.195a4.916 4.916 0 0 0-8.38 4.482c-4.083-.205-7.697-2.162-10.125-5.138a4.822 4.822 0 0 0-.664 2.475c0 1.708.87 3.216 2.188 4.099a4.904 4.904 0 0 1-2.229-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.936 4.936 0 0 1-2.224.084c.627 1.956 2.444 3.377 4.6 3.417a9.867 9.867 0 0 1-6.102 2.104c-.396 0-.787-.023-1.175-.069a13.945 13.945 0 0 0 7.548 2.212c9.057 0 14.009-7.513 14.009-14.009 0-.213-.005-.425-.014-.636a10.012 10.012 0 0 0 2.457-2.548z"/></svg>
+              </a>
             </div>
           </div>
+          <div>
+            <h3 className="font-semibold mb-4">Services</h3>
+            <ul className="space-y-2 text-gray-400">
+              <li>Statistical Analysis</li>
+              <li>Thesis Assistance</li>
+              <li>Data Analytics</li>
+              <li>Research Support</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-4">Contact</h3>
+            <ul className="space-y-2 text-gray-400">
+              <li>medistatsolutions@gmail.com</li>
+              <li>+91 9744649329</li>
+              <li>Mangalore, Karnataka</li>
+              <li>India</li>
+            </ul>
+          </div>
         </div>
-      </footer>
-      <SupportChat />
-    </div>
+      </div>
+    </footer>
+    <SupportChat />
+  </div>
   );
 };
 
 export default MedistatLanding;
+
+function AnimatedCounter({ value, start, suffix = '' }) {
+  const controls = useAnimation();
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    if (start) {
+      controls.start({ count: value, transition: { duration: 1.2, ease: 'easeOut' } });
+    }
+  }, [start, value, controls]);
+  return (
+    <motion.span
+      animate={controls}
+      initial={{ count: 0 }}
+      onUpdate={latest => setDisplay(Math.round(latest.count))}
+    >
+      {display}{suffix}
+    </motion.span>
+  );
+}
