@@ -58,7 +58,7 @@ const Career = () => {
       formData.append('coverLetter', form.coverLetter);
       formData.append('resume', form.resume);
       // Replace with your backend endpoint
-      const response = await fetch('http://127.0.0.1:8000/career-application/', {
+      const response = await fetch('https://medstat-one.vercel.app/career-application/', {
         method: 'POST',
         body: formData
       });
