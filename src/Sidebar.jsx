@@ -49,12 +49,6 @@ const Sidebar = ({ open, onClose }) => {
         <Link to="/stats" style={{ padding: '12px 0', color: location.pathname === '/stats' ? '#2563eb' : '#1e293b', fontWeight: 600, borderRadius: 8, background: location.pathname === '/stats' ? '#e0e7ef' : 'none', textDecoration: 'none', margin: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}><BarChart3 size={22} /></Link>
         <Link to="/manage-review" style={{ padding: '12px 0', color: location.pathname === '/manage-review' ? '#2563eb' : '#1e293b', fontWeight: 600, borderRadius: 8, background: location.pathname === '/manage-review' ? '#e0e7ef' : 'none', textDecoration: 'none', margin: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><NotebookPen size={22} /></Link>
         <Link to="/manage-tasks" style={{ padding: '12px 0', color: location.pathname === '/manage-tasks' ? '#2563eb' : '#1e293b', fontWeight: 600, borderRadius: 8, background: location.pathname === '/manage-tasks' ? '#e0e7ef' : 'none', textDecoration: 'none', margin: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Package size={22} /></Link>
-        <Link
-          to="/careers"
-          className={location.pathname === '/careers' ? 'sidebar-link active' : 'sidebar-link'}
-        >
-          <span role="img" aria-label="Careers">💼</span> Careers
-        </Link>
       </nav>
     </aside>
   );
