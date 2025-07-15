@@ -7,6 +7,7 @@ import Payment from './payment.jsx'
 import Stats from './stats.jsx'
 import ManageReview from './manage-review.jsx'
 import ManageTasks from './manage-tasks.jsx'
+import Career from './career';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/stats" element={<Stats />} />
         <Route path="/manage-review" element={<ManageReview />} />
         <Route path="/manage-tasks" element={<ManageTasks />} />
+        <Route path="/careers" element={<Career />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

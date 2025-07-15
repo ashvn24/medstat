@@ -371,7 +371,7 @@ const Stats = () => {
     const logoUrl = window.location.origin + '/images/logo.jpg';
     const company = {
       name: 'Medistat Solutions',
-      address: 'Kochi, Kerala, India',
+      address: 'Mangalore, Karnataka, India',
       email: 'medistatsolutions@gmail.com',
       phone: '+91 9744649329',
       gst: 'GSTIN: 32AAICM1234F1Z5',
